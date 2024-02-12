@@ -1,6 +1,6 @@
 # Default ignored files
 /shelf/
-/workspace.xml
+/.idea/workspace.xml
 
 # Editor-based HTTP Client requests
 /httpRequests/
@@ -29,6 +29,10 @@
 *.zip
 *.tar.gz
 *.rar
+
+# Personally added by Kwzii
+.idea
+out/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
