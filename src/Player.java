@@ -22,8 +22,12 @@ public class Player {
         this.chips = chips;
     }
 
-    protected int getPassword() {
-        return password.hashCode();
+    public String getUsername() {
+        return username;
+    }
+
+    protected String getPassword() {
+        return password;
     }
 
     public void betChips(int inc) {
@@ -42,6 +46,7 @@ public class Player {
     public String toString() {
         return "Player{" +
                 "username='" + username + '\'' +
+                ", password='" + password + '\'' +
                 ", chips=" + chips +
                 '}';
     }
