@@ -1,4 +1,3 @@
-import java.net.PasswordAuthentication;
 import java.util.Objects;
 
 /**
