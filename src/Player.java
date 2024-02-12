@@ -1,3 +1,4 @@
+import java.net.PasswordAuthentication;
 import java.util.Objects;
 
 /**
@@ -8,16 +9,29 @@ import java.util.Objects;
 
 public class Player {
     private final String username;
-
+    private final String password;
     private int chips;
 
 
-    public Player(String username) {
-        this.username = username;
-        this.chips = 150;
+    public Player(String username, String password) {
+        this(username, password, 150);
     }
 
-    public void setChips(int inc) {
+    public Player(String username, String password, int chips) {
+        this.username = username;
+        this.password = password;
+        this.chips = chips;
+    }
+
+    protected int getPassword() {
+        return password.hashCode();
+    }
+
+    public void betChips(int inc) {
+        chips -= inc;
+    }
+
+    public void winChips(int inc) {
         chips += inc;
     }
 
