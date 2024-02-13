@@ -44,6 +44,5 @@ public class CasinoMain {
         }
 
         System.out.println(activePlayer);
-
     }
 }
