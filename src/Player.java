@@ -56,11 +56,11 @@ public class Player {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Player player = (Player) o;
-        return chips == player.chips && Objects.equals(username, player.username);
+        return Objects.equals(username, player.username) && Objects.equals(password, player.password);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(username, chips);
+        return Objects.hash(username, password);
     }
 }
