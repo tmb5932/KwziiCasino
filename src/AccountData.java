@@ -1,7 +1,4 @@
-import java.io.FileWriter;   // Import the FileWriter class
-import java.io.IOException;  // Import the IOException class to handle errors
-import java.io.File;  // Import the File class
-import java.io.FileNotFoundException;  // Import this class to handle errors
+import java.io.*;
 import java.util.HashMap;
 import java.util.Scanner; // Import the Scanner class to read text files
 
@@ -14,7 +11,7 @@ public class AccountData {
     public void saveAccount(Player playerAccount) {
         try {
             FileWriter writer = new FileWriter(filename, true);
-            writer.write(playerAccount.getUsername() + "\t" + playerAccount.getPassword() + "\t" + playerAccount.getChips() + "\n");
+            writer.write(playerAccount.getUsername() + ", " + playerAccount.getPassword() + ", " + playerAccount.getChips() + "\n");
             writer.close();
             System.out.println("Successfully saved the account.");
         } catch (IOException e) {
@@ -30,7 +27,7 @@ public class AccountData {
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
-                String[] playerInfo = data.strip().split("\t");
+                String[] playerInfo = data.split(", ");
                 Player tempPlayer = new Player(playerInfo[0], playerInfo[1], Integer.parseInt(playerInfo[2]));
                 accountMap.put(playerInfo[0], tempPlayer);
             }
