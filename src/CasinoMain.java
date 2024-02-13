@@ -44,14 +44,6 @@ public class CasinoMain {
         }
 
         System.out.println(activePlayer);
-//        Player player1 = new Player("admin", "admin");
-//        accounts.saveAccount(player1);
-//        Player player2 = new Player("cat", "dog", 2500);
-//        accounts.saveAccount(player2);
 
-    }
-
-    public void setActivePlayer(Player activePlayer) {
-        this.activePlayer = activePlayer;
     }
 }
