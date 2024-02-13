@@ -4,11 +4,13 @@ import java.util.*;
 public class CasinoModel {
     public static Player activePlayerAccount;
     AccountData accounts = new AccountData();
+    Scenes currentScene;
     HashMap<String, Player> accountMap;
 
     private final List<Observer<CasinoModel, String>> observers = new LinkedList<>();
     public CasinoModel() {
         accountMap = accounts.readAccounts();
+        currentScene = Scenes.HOMEPAGE;
         this.alertObservers("");
     }
 
@@ -19,7 +21,8 @@ public class CasinoModel {
         } else if (accountMap.containsKey(usr)) {
             alertObservers("This username is already taken, please try another...");
         } else {
-            alertObservers("Unknown Error has occurred.");
+            accounts.saveAccount(newPlayer);
+            activePlayerAccount = newPlayer;
         }
     }
 
@@ -32,6 +35,10 @@ public class CasinoModel {
         }
     }
 
+    public void setScene(Scenes temp) {
+        currentScene = temp;
+        alertObservers("Scene Changed");
+    }
 
     public void addObserver(Observer<CasinoModel, String> observer) {
         this.observers.add(observer);

@@ -19,6 +19,11 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     private Button[][] buttonArray;
     private Label message = new Label();
     private final Font basicFont = new Font("Ariel", 19);
+    private Stage mainStage;
+    private Scene mainScene;
+    private Scene loginScene;
+    private Scene signupScene;
+    private Scene gamesScene;
 
 
     /**
@@ -34,8 +39,8 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
 
     @Override
     public void start(Stage stage) {
+        mainStage = stage;
         buttonArray = new Button[2][3];
-        Scene mainScene;
         TextField usernameField1 = new TextField();
         TextField passwordField1 = new TextField();
         TextField usernameField2 = new TextField();
@@ -64,7 +69,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         usernameField2.setFocusTraversable(false);
         passwordField2.setFocusTraversable(false);
 
-        Scene signupScene = new Scene(signupGrid);
+        signupScene = new Scene(signupGrid);
 
         // BUTTON SECTION
         Button signUpButton = new Button("Sign up");
@@ -72,22 +77,16 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         signUpButton.setFont(basicFont);
         signUpButton.setAlignment(Pos.CENTER_LEFT);
         signUpButton.setTextAlignment(TextAlignment.CENTER);
-        signUpButton.setOnAction(event -> {
-//            model.signUp(); // TODO: check this
-            stage.setScene(signupScene);
-        });
+        signUpButton.setOnAction(event -> model.setScene(Scenes.SIGNUP));
 
-        Scene loginScene = new Scene(loginGrid);
+        loginScene = new Scene(loginGrid);
 
         Button logInButton = new Button("Login");
         logInButton.setMinSize(200, 150);
         logInButton.setFont(basicFont);
         logInButton.setAlignment(Pos.CENTER_RIGHT);
         logInButton.setTextAlignment(TextAlignment.CENTER);
-        logInButton.setOnAction(event -> {
-//            model.setLoginScreen(); // TODO: check this
-            stage.setScene(loginScene);
-        });
+        logInButton.setOnAction(event -> model.setScene(Scenes.LOGIN));
 
         Button signupBackButton = new Button("Back");
         signupBackButton.setMinSize(125, 50);
@@ -152,18 +151,25 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         });
 
         mainScene = new Scene(startScreenVBox);
-        signupBackButton.setOnAction(event -> stage.setScene(mainScene));
-        loginBackButton.setOnAction(event -> stage.setScene(mainScene));
-        stage.setTitle("Casino GUI");
+        signupBackButton.setOnAction(event -> model.setScene(Scenes.HOMEPAGE));
+        loginBackButton.setOnAction(event -> model.setScene(Scenes.HOMEPAGE));
+        mainStage.setTitle("Casino GUI");
         update(model, "Please Sign Up or Login");
-        stage.setScene(mainScene);
-        stage.sizeToScene();
-        stage.show();
+        mainStage.setScene(mainScene);
+        mainStage.sizeToScene();
+        mainStage.show();
     }
 
     @Override
     public void update(CasinoModel casinoModel, String text) {
         model = casinoModel;
+        switch (casinoModel.currentScene) {
+            case LOGIN -> mainStage.setScene(loginScene);
+            case SIGNUP -> mainStage.setScene(signupScene);
+            case HOMEPAGE -> mainStage.setScene(mainScene);
+            case GAMESTAGE -> mainStage.setScene(gamesScene);
+        }
         topLabel.setText(text);
+        message.setText(text);
     }
 }
