@@ -9,6 +9,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 public class CasinoGUI extends Application implements Observer<CasinoModel, String> {
@@ -18,8 +19,6 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     private Button[][] buttonArray;
     private Label message = new Label();
     private final Font basicFont = new Font("Ariel", 19);
-    private TextField usernameField = new TextField();
-    private TextField passwordField = new TextField();
 
 
     /**
@@ -36,68 +35,128 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     @Override
     public void start(Stage stage) {
         buttonArray = new Button[2][3];
-        Scene scene;
+        Scene mainScene;
+        TextField usernameField1 = new TextField();
+        TextField passwordField1 = new TextField();
+        TextField usernameField2 = new TextField();
+        TextField passwordField2 = new TextField();
 
-        GridPane grid = new GridPane();
-        grid.setPadding(new Insets(10, 10, 10, 10));
-        grid.setVgap(5);
-        grid.setHgap(5);
+        GridPane signupGrid = new GridPane();
+        signupGrid.setPadding(new Insets(10, 10, 10, 10));
+        signupGrid.setVgap(5);
+        signupGrid.setHgap(5);
+
+        GridPane loginGrid = new GridPane();
+        loginGrid.setPadding(new Insets(10, 10, 10, 10));
+        loginGrid.setVgap(5);
+        loginGrid.setHgap(5);
 
         // LABEL SECTION
         topLabel = new Label("Please Sign Up or Login");
         topLabel.setFont(basicFont);
         topLabel.setAlignment(Pos.TOP_CENTER);
-        usernameField.setPromptText("Enter your Username");
-        passwordField.setPromptText("Enter your Password");
+        usernameField1.setPromptText("Enter your Username");
+        passwordField1.setPromptText("Enter your Password");
+        usernameField1.setFocusTraversable(false);
+        passwordField1.setFocusTraversable(false);
+        usernameField2.setPromptText("Enter your Username");
+        passwordField2.setPromptText("Enter your Password");
+        usernameField2.setFocusTraversable(false);
+        passwordField2.setFocusTraversable(false);
 
+        Scene signupScene = new Scene(signupGrid);
 
         // BUTTON SECTION
         Button signUpButton = new Button("Sign up");
         signUpButton.setMinSize(200, 150);
         signUpButton.setFont(basicFont);
         signUpButton.setAlignment(Pos.CENTER_LEFT);
-        signUpButton.setOnAction(event -> model.signUp());
+        signUpButton.setTextAlignment(TextAlignment.CENTER);
+        signUpButton.setOnAction(event -> {
+//            model.signUp(); // TODO: check this
+            stage.setScene(signupScene);
+        });
+
+        Scene loginScene = new Scene(loginGrid);
 
         Button logInButton = new Button("Login");
         logInButton.setMinSize(200, 150);
         logInButton.setFont(basicFont);
         logInButton.setAlignment(Pos.CENTER_RIGHT);
-        logInButton.setOnAction(event -> model.setLoginScreen());
+        logInButton.setTextAlignment(TextAlignment.CENTER);
+        logInButton.setOnAction(event -> {
+//            model.setLoginScreen(); // TODO: check this
+            stage.setScene(loginScene);
+        });
+
+        Button signupBackButton = new Button("Back");
+        signupBackButton.setMinSize(125, 50);
+        signupBackButton.setFont(basicFont);
+        signupBackButton.setAlignment(Pos.CENTER);
+        signupBackButton.setTextAlignment(TextAlignment.CENTER);
+
+        Button loginBackButton = new Button("Back");
+        loginBackButton.setMinSize(125, 50);
+        loginBackButton.setFont(basicFont);
+        loginBackButton.setAlignment(Pos.CENTER);
+        loginBackButton.setTextAlignment(TextAlignment.CENTER);
+
 
         HBox startScreenHBox = new HBox(signUpButton, logInButton);
         startScreenHBox.setAlignment(Pos.CENTER);
         VBox startScreenVBox = new VBox(topLabel, startScreenHBox);
         startScreenVBox.setAlignment(Pos.CENTER);
 
-        Button submitButton = new Button("Submit");
-        submitButton.setMinSize(200, 150);
-        submitButton.setFont(basicFont);
-        submitButton.setAlignment(Pos.CENTER_LEFT);
-        submitButton.setOnAction(event -> model.signUp());
-
-
-        GridPane.setConstraints(usernameField, 0, 0);
-        grid.getChildren().add(usernameField);
-        GridPane.setConstraints(passwordField, 0, 1);
-        grid.getChildren().add(passwordField);
-        GridPane.setConstraints(submitButton, 0, 3);
-        grid.getChildren().add(submitButton);
-
-        submitButton.setOnAction(e -> {
-            if ((usernameField.getText() != null && !passwordField.getText().isEmpty())) {
-                topLabel.setText(usernameField.getText() + ", thank you for logging in!");
-                model.login(usernameField.getText(), passwordField.getText());
+        // Log into a previously existing account screen
+        Button submitLoginButton = new Button("Submit");
+        submitLoginButton.setMinSize(125, 50);
+        submitLoginButton.setFont(basicFont);
+        submitLoginButton.setAlignment(Pos.CENTER);
+        GridPane.setConstraints(usernameField1, 0, 0);
+        loginGrid.getChildren().add(usernameField1);
+        GridPane.setConstraints(passwordField1, 0, 1);
+        loginGrid.getChildren().add(passwordField1);
+        GridPane.setConstraints(submitLoginButton, 0, 3);
+        loginGrid.getChildren().add(submitLoginButton);
+        GridPane.setConstraints(loginBackButton, 0, 4);
+        loginGrid.getChildren().add(loginBackButton);
+        submitLoginButton.setOnAction(e -> {
+            if ((usernameField1.getText() != null && !passwordField1.getText().isEmpty())) {
+                topLabel.setText(usernameField1.getText() + ", thank you for logging in!");
+                model.login(usernameField1.getText(), passwordField1.getText());
             } else {
                 topLabel.setText("You have not entered the required fields.");
             }
         });
 
+        // Create a new account screen
+        Button submitSignupButton = new Button("Submit");
+        submitSignupButton.setMinSize(125, 50);
+        submitSignupButton.setFont(basicFont);
+        submitSignupButton.setAlignment(Pos.CENTER);
+        GridPane.setConstraints(usernameField2, 0, 0);
+        signupGrid.getChildren().add(usernameField2);
+        GridPane.setConstraints(passwordField2, 0, 1);
+        signupGrid.getChildren().add(passwordField2);
+        GridPane.setConstraints(submitSignupButton, 0, 3);
+        signupGrid.getChildren().add(submitSignupButton);
+        GridPane.setConstraints(signupBackButton, 0, 4);
+        signupGrid.getChildren().add(signupBackButton);
+        submitSignupButton.setOnAction(e -> {
+            if ((usernameField2.getText() != null && !passwordField2.getText().isEmpty())) {
+                topLabel.setText(usernameField2.getText() + ", thank you for signing up!");
+                model.signUp(usernameField2.getText(), passwordField2.getText());
+            } else {
+                topLabel.setText("You have not entered the required fields.");
+            }
+        });
 
-
-        scene = new Scene(startScreenVBox);
+        mainScene = new Scene(startScreenVBox);
+        signupBackButton.setOnAction(event -> stage.setScene(mainScene));
+        loginBackButton.setOnAction(event -> stage.setScene(mainScene));
         stage.setTitle("Casino GUI");
         update(model, "Please Sign Up or Login");
-        stage.setScene(scene);
+        stage.setScene(mainScene);
         stage.sizeToScene();
         stage.show();
     }
