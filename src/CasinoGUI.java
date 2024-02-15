@@ -32,7 +32,12 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     private Scene loginScene;
     private Scene signupScene;
     private Scene homeScene;
-
+    private Scene blackjackScene;
+    private Scene rouletteScene;
+    private Scene pokerScene;
+    private Scene slotsScene;
+    private Scene coinflipScene;
+    private Scene horsebetScene;
 
     /**
      * In the init the GUI creates the model and adds itself as an observer
@@ -46,7 +51,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     }
 
     /**
-     * Initializes and creates all the necessary things for the application to be seen properly
+     * Calls stages to be created and shows the main stage
      * @param stage the primary stage for this application, onto which
      * the application scene can be set.
      * Applications may create other stages, if needed, but they will not be
@@ -54,11 +59,28 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
      */
     @Override
     public void start(Stage stage) {
+        createMainStage(stage);
+        mainStage.setTitle("Casino GUI");
+        update(model, "Please Sign Up or Login");
+        mainStage.setScene(startupScene);
+        mainStage.sizeToScene();
+        mainStage.show();
+        centerScreen();
+    }
+
+    /**
+     * Creates the main Stage that the initial view will show
+     * @param stage the primary stage for this application, onto which
+     *  the application scene can be set.
+     *  Applications may create other stages, if needed, but they will not be
+     *  primary stages.
+     */
+    void createMainStage(Stage stage) {
         mainStage = stage;
-        TextField loginUsernameField = new TextField();
-        PasswordField loginPasswordField = new PasswordField();
-        TextField signupUsernameField = new TextField();
-        PasswordField signupPasswordField = new PasswordField();
+        TextField loginUsrField = new TextField();
+        PasswordField loginPassField = new PasswordField();
+        TextField signupUsrField = new TextField();
+        PasswordField signupPassField = new PasswordField();
 
         // LABEL SECTION
         startScreenLabel.setFont(basicFont);
@@ -69,18 +91,18 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         loginMessage.setAlignment(Pos.TOP_CENTER);
         homeLabel.setFont(basicFont);
         homeLabel.setAlignment(Pos.CENTER);
-        loginUsernameField.setPromptText("Enter your Username");
-        loginPasswordField.setPromptText("Enter your Password");
-        loginUsernameField.setAlignment(Pos.CENTER);
-        loginPasswordField.setAlignment(Pos.CENTER);
-//        loginUsernameField.setFocusTraversable(false); // TODO: Decide if i want this on or off
-//        loginPasswordField.setFocusTraversable(false); // TODO: Decide if i want this on or off
-        signupUsernameField.setPromptText("Enter your Username");
-        signupPasswordField.setPromptText("Enter your Password");
-        signupUsernameField.setAlignment(Pos.CENTER);
-        signupPasswordField.setAlignment(Pos.CENTER);
-//        signupUsernameField.setFocusTraversable(false); // TODO: Decide if i want this on or off
-//        signupPasswordField.setFocusTraversable(false); // TODO: Decide if i want this on or off
+        loginUsrField.setPromptText("Enter your Username");
+        loginPassField.setPromptText("Enter your Password");
+        loginUsrField.setAlignment(Pos.CENTER);
+        loginPassField.setAlignment(Pos.CENTER);
+//        loginUsrField.setFocusTraversable(false); // TODO: Decide if i want this on or off
+//        loginPassField.setFocusTraversable(false); // TODO: Decide if i want this on or off
+        signupUsrField.setPromptText("Enter your Username");
+        signupPassField.setPromptText("Enter your Password");
+        signupUsrField.setAlignment(Pos.CENTER);
+        signupPassField.setAlignment(Pos.CENTER);
+//        signupUsrField.setFocusTraversable(false); // TODO: Decide if i want this on or off
+//        signupPassField.setFocusTraversable(false); // TODO: Decide if i want this on or off
 
 
         // BUTTON SECTION
@@ -112,11 +134,13 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         signupSubmitButton.setMinSize(125, 50);
         signupSubmitButton.setFont(basicFont);
         signupSubmitButton.setAlignment(Pos.CENTER);
-        VBox signupVBox = new VBox(signupMessage, signupUsernameField, signupPasswordField, signupSubmitButton, signupBackButton);
+        VBox signupVBox = new VBox(signupMessage, signupUsrField,
+                signupPassField, signupSubmitButton, signupBackButton);
         signupSubmitButton.setOnAction(e -> {
-            if ((signupUsernameField.getText() != null && !signupPasswordField.getText().isEmpty())) {
-                signupMessage.setText(signupUsernameField.getText() + ", thank you for signing up!");
-                model.signUp(signupUsernameField.getText(), signupPasswordField.getText());
+            if ((signupUsrField.getText() != null
+                    && !signupPassField.getText().isEmpty())) {
+                signupMessage.setText(signupUsrField.getText() + ", thank you for signing up!");
+                model.signUp(signupUsrField.getText(), signupPassField.getText());
             } else {
                 signupMessage.setText("You have not entered the required fields.");
             }
@@ -137,11 +161,12 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         loginSubmitButton.setMinSize(125, 50);
         loginSubmitButton.setFont(basicFont);
         loginSubmitButton.setAlignment(Pos.CENTER);
-        VBox loginVBox = new VBox(loginMessage, loginUsernameField, loginPasswordField, loginSubmitButton, loginBackButton);
+        VBox loginVBox = new VBox(loginMessage, loginUsrField, loginPassField,
+                loginSubmitButton, loginBackButton);
         loginSubmitButton.setOnAction(e -> {
-            if ((loginUsernameField.getText() != null && !loginPasswordField.getText().isEmpty())) {
-                loginMessage.setText(loginUsernameField.getText() + ", thank you for logging in!");
-                model.login(loginUsernameField.getText(), loginPasswordField.getText());
+            if ((loginUsrField.getText() != null && !loginPassField.getText().isEmpty())) {
+                loginMessage.setText(loginUsrField.getText() + ", thank you for logging in!");
+                model.login(loginUsrField.getText(), loginPassField.getText());
             } else {
                 loginMessage.setText("You have not entered the required fields.");
             }
@@ -219,14 +244,8 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         startupScene = new Scene(startScreenVBox, 500, 250);
         signupBackButton.setOnAction(event -> model.setScene(Scenes.STARTUP));
         loginBackButton.setOnAction(event -> model.setScene(Scenes.STARTUP));
-        mainStage.setTitle("Casino GUI");
-        update(model, "Please Sign Up or Login");
-        mainStage.setScene(startupScene);
-        mainStage.sizeToScene();
-        mainStage.show();
-        centerScreen();
-    }
 
+    }
     /**
      * Centers the application on the users screen
      */
@@ -254,6 +273,19 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             case STARTUP -> mainStage.setScene(startupScene);
 
             case HOME -> mainStage.setScene(homeScene);
+
+            case BLACKJACK -> mainStage.setScene(blackjackScene); // TODO: Make a stage for each of these.
+                                        // TODO: Probably in another file with a method that returns the stage.
+
+            case ROULETTE -> mainStage.setScene(rouletteScene);
+
+            case POKER -> mainStage.setScene(pokerScene);
+
+            case SLOTS -> mainStage.setScene(slotsScene);
+
+            case COINFLIP -> mainStage.setScene(coinflipScene);
+
+            case HORSEBETTING -> mainStage.setScene(horsebetScene);
         }
         centerScreen();
 
