@@ -85,24 +85,27 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         // LABEL SECTION
         startScreenLabel.setFont(basicFont);
         startScreenLabel.setAlignment(Pos.TOP_CENTER);
+
         signupMessage.setFont(basicFont);
         signupMessage.setAlignment(Pos.TOP_CENTER);
+
         loginMessage.setFont(basicFont);
         loginMessage.setAlignment(Pos.TOP_CENTER);
+
         homeLabel.setFont(basicFont);
         homeLabel.setAlignment(Pos.CENTER);
+
         loginUsrField.setPromptText("Enter your Username");
-        loginPassField.setPromptText("Enter your Password");
         loginUsrField.setAlignment(Pos.CENTER);
+
+        loginPassField.setPromptText("Enter your Password");
         loginPassField.setAlignment(Pos.CENTER);
-//        loginUsrField.setFocusTraversable(false); // TODO: Decide if i want this on or off
-//        loginPassField.setFocusTraversable(false); // TODO: Decide if i want this on or off
+
         signupUsrField.setPromptText("Enter your Username");
-        signupPassField.setPromptText("Enter your Password");
         signupUsrField.setAlignment(Pos.CENTER);
+
+        signupPassField.setPromptText("Enter your Password");
         signupPassField.setAlignment(Pos.CENTER);
-//        signupUsrField.setFocusTraversable(false); // TODO: Decide if i want this on or off
-//        signupPassField.setFocusTraversable(false); // TODO: Decide if i want this on or off
 
 
         // BUTTON SECTION
@@ -244,8 +247,8 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         startupScene = new Scene(startScreenVBox, 500, 250);
         signupBackButton.setOnAction(event -> model.setScene(Scenes.STARTUP));
         loginBackButton.setOnAction(event -> model.setScene(Scenes.STARTUP));
-
     }
+
     /**
      * Centers the application on the users screen
      */
@@ -274,8 +277,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
 
             case HOME -> mainStage.setScene(homeScene);
 
-            case BLACKJACK -> mainStage.setScene(blackjackScene); // TODO: Make a stage for each of these.
-                                        // TODO: Probably in another file with a method that returns the stage.
+            case BLACKJACK -> mainStage.setScene(blackjackScene); // TODO: Make a scene for each of these in their own method.
 
             case ROULETTE -> mainStage.setScene(rouletteScene);
 
