@@ -1,6 +1,7 @@
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -11,16 +12,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class CasinoGUI extends Application implements Observer<CasinoModel, String> {
     private CasinoModel model;
     private final static String RESOURCES_DIR = "resources/";
-    private Label startScreenLabel = new Label("Please Sign Up or Login");
-    private Label homeLabel = new Label("Choose a game :)");
-    private Button[][] homeGameArray;
-    private Label loginMessage = new Label("Login");
-    private Label signupMessage = new Label("Sign up");
+    private final Label startScreenLabel = new Label("Please Sign Up or Login");
+    private final Label homeLabel = new Label("Choose a game :)");
+    private final Label loginMessage = new Label("Login");
+    private final Label signupMessage = new Label("Sign up");
     private final Font basicFont = new Font("Ariel", 19);
     private Stage mainStage;
     private Scene startupScene;
@@ -43,7 +44,6 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     @Override
     public void start(Stage stage) {
         mainStage = stage;
-        homeGameArray = new Button[2][3];
         TextField loginUsernameField = new TextField();
         PasswordField loginPasswordField = new PasswordField();
         TextField signupUsernameField = new TextField();
@@ -96,7 +96,6 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         signupBackButton.setFont(basicFont);
         signupBackButton.setAlignment(Pos.CENTER);
         signupBackButton.setTextAlignment(TextAlignment.CENTER);
-
         Button loginBackButton = new Button("Back");
         loginBackButton.setMinSize(125, 50);
         loginBackButton.setFont(basicFont);
@@ -140,6 +139,20 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         loginVBox.setPadding(new Insets(10, 50, 10, 50));
         loginVBox.setAlignment(Pos.CENTER);
         loginScene = new Scene(loginVBox, 500, 250);
+
+        Button saveButton = new Button("Save");
+        saveButton.setMinSize(150, 100);
+        saveButton.setFont(basicFont);
+        saveButton.setAlignment(Pos.CENTER);
+        saveButton.setOnAction(e -> model.saveAccounts());
+
+        Button testButton = new Button("WIN BIG");
+        testButton.setMinSize(150, 100);
+        testButton.setFont(basicFont);
+        testButton.setAlignment(Pos.CENTER);
+        testButton.setOnAction(e -> model.winBet(500));
+
+
 
         // Game Home Buttons
         Button blackjackButton = new Button("Blackjack");
@@ -190,13 +203,17 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         homeGameGrid.getChildren().add(coinFlipButton);
         GridPane.setConstraints(horsesButton, 2, 2);
         homeGameGrid.getChildren().add(horsesButton);
+        GridPane.setConstraints( saveButton, 4, 0);
+        homeGameGrid.getChildren().add(saveButton);
+        GridPane.setConstraints( testButton, 3, 0);
+        homeGameGrid.getChildren().add(testButton);
+
+
 
         VBox homeVBox = new VBox(homeLabel, homeGameGrid);
         homeVBox.setPadding(new Insets(20, 0, 20, 0));
         homeVBox.setAlignment(Pos.CENTER);
-
-        homeScene = new Scene(homeVBox, 500, 275);
-
+        homeScene = new Scene(homeVBox, 800, 450); // 500 275
 
         HBox startScreenHBox = new HBox(signUpButton, logInButton);
         startScreenHBox.setAlignment(Pos.CENTER);
@@ -216,6 +233,13 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         mainStage.setScene(startupScene);
         mainStage.sizeToScene();
         mainStage.show();
+        centerScreen();
+    }
+
+    void centerScreen() {
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        mainStage.setX((screenBounds.getWidth() - mainStage.getWidth()) / 2);
+        mainStage.setY((screenBounds.getHeight() - mainStage.getHeight()) / 2);
     }
 
     @Override
@@ -230,6 +254,8 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
 
             case HOME -> mainStage.setScene(homeScene);
         }
+        centerScreen();
+
         if (text != null) {
             switch (casinoModel.currentScene) {
                 case LOGIN ->  loginMessage.setText(text);

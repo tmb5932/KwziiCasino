@@ -14,6 +14,11 @@ public class CasinoModel {
         this.alertObservers(null);
     }
 
+    public void winBet(int amount) {
+        activePlayerAccount.winChips(amount);
+        this.alertObservers("YOU WON " + amount + " CHIPS!!");
+    }
+
     public void signUp(String usr, String pass) {
         Player newPlayer = new Player(usr, pass);
         if (accountMap.containsValue(newPlayer)) {
@@ -21,12 +26,21 @@ public class CasinoModel {
         } else if (accountMap.containsKey(usr)) {
             alertObservers("This username is already taken, please try another.");
         } else {
-            accounts.saveAccount(newPlayer);
-            activePlayerAccount = newPlayer;
-            currentScene = Scenes.HOME;
-            alertObservers("You have now been signed in, " + usr);
+            accounts.saveAccount(newPlayer, true);
+            accountMap = accounts.readAccounts();
+            login(usr, pass);
         }
     }
+
+    public void saveAccounts() {
+        int count = 0;
+        for (Player acc : accountMap.values()) {
+            accounts.saveAccount(acc, count != 0);
+            count++;
+        }
+        alertObservers("Your account has been saved :)");
+    }
+
 
     public void login(String usr, String pass) {
         if (accountMap.containsKey(usr) && accountMap.get(usr).getPassword().equals(pass)) {
