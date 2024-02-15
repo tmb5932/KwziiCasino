@@ -151,19 +151,6 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         loginVBox.setAlignment(Pos.CENTER);
         loginScene = new Scene(loginVBox, 500, 250);
 
-        // BUTTONS FOR TESTING          TODO: REMOVE THESE WHEN FINISHED
-        Button saveButton = new Button("Save");
-        saveButton.setMinSize(150, 100);
-        saveButton.setFont(basicFont);
-        saveButton.setAlignment(Pos.CENTER);
-        saveButton.setOnAction(e -> model.saveAccounts());
-
-        Button testButton = new Button("WIN BIG");
-        testButton.setMinSize(150, 100);
-        testButton.setFont(basicFont);
-        testButton.setAlignment(Pos.CENTER);
-        testButton.setOnAction(e -> model.winBet(500));
-
         // Game Home Buttons
         Button blackjackButton = new Button("Blackjack");
         blackjackButton.setMinSize(150, 100);
@@ -198,8 +185,8 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         // Game Home Scene
         GridPane homeGameGrid = new GridPane();
         homeGameGrid.setPadding(new Insets(10, 10, 10, 10));
-        homeGameGrid.setVgap(5);
-        homeGameGrid.setHgap(5);
+        homeGameGrid.setVgap(15);
+        homeGameGrid.setHgap(15);
         homeGameGrid.setAlignment(Pos.CENTER);
         GridPane.setConstraints( blackjackButton, 0, 1);
         homeGameGrid.getChildren().add(blackjackButton);
@@ -213,10 +200,6 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         homeGameGrid.getChildren().add(coinFlipButton);
         GridPane.setConstraints(horsesButton, 2, 2);
         homeGameGrid.getChildren().add(horsesButton);
-        GridPane.setConstraints( saveButton, 4, 0);
-        homeGameGrid.getChildren().add(saveButton);
-        GridPane.setConstraints( testButton, 3, 0);
-        homeGameGrid.getChildren().add(testButton);
 
         VBox homeVBox = new VBox(homeLabel, homeGameGrid);
         homeVBox.setPadding(new Insets(20, 0, 20, 0));

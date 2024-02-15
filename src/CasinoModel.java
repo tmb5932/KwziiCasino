@@ -28,9 +28,15 @@ public class CasinoModel {
      */
     public void winBet(int amount) {
         activePlayerAccount.winChips(amount);
+        saveAccounts();
         this.alertObservers("YOU WON " + amount + " CHIPS!!");
     }
 
+    public void placeBet(int amount) {
+        activePlayerAccount.betChips(amount);
+        saveAccounts();
+        this.alertObservers("You have bet " + amount + " chips.");
+    }
     /**
      * Allows new users to sign up. GUI calls this and this uses the AccountData.java functions
      * @param usr username in a String
@@ -58,7 +64,7 @@ public class CasinoModel {
             accounts.saveAccount(acc, count != 0);
             count++;
         }
-        alertObservers("Your account has been saved :)");
+        alertObservers(null);
     }
 
     /**
@@ -70,7 +76,7 @@ public class CasinoModel {
         if (accountMap.containsKey(usr) && accountMap.get(usr).getPassword().equals(pass)) {
             activePlayerAccount = accountMap.get(usr);
             currentScene = Scenes.HOME;
-            alertObservers("You have now been signed in, " + usr);
+            alertObservers("You have now been signed in, " + usr + ".");
         } else {
             alertObservers("The credentials you have inputted are incorrect");
         }
