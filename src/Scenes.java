@@ -1,6 +1,6 @@
 public enum Scenes {
-    HOMEPAGE,
-    GAMESTAGE,
+    STARTUP,
+    HOME,
     LOGIN,
     SIGNUP
 }

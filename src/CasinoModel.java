@@ -10,7 +10,7 @@ public class CasinoModel {
     private final List<Observer<CasinoModel, String>> observers = new LinkedList<>();
     public CasinoModel() {
         accountMap = accounts.readAccounts();
-        currentScene = Scenes.HOMEPAGE;
+        currentScene = Scenes.STARTUP;
         this.alertObservers(null);
     }
 
@@ -23,7 +23,7 @@ public class CasinoModel {
         } else {
             accounts.saveAccount(newPlayer);
             activePlayerAccount = newPlayer;
-            currentScene = Scenes.GAMESTAGE;
+            currentScene = Scenes.HOME;
             alertObservers("You have now been signed in, " + usr);
         }
     }
@@ -31,7 +31,7 @@ public class CasinoModel {
     public void login(String usr, String pass) {
         if (accountMap.containsKey(usr) && accountMap.get(usr).getPassword().equals(pass)) {
             activePlayerAccount = accountMap.get(usr);
-            currentScene = Scenes.GAMESTAGE;
+            currentScene = Scenes.HOME;
             alertObservers("You have now been signed in, " + usr);
         } else {
             alertObservers("The credentials you have inputted are incorrect");
