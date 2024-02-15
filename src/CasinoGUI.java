@@ -17,7 +17,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     private CasinoModel model;
     private final static String RESOURCES_DIR = "resources/";
     private Label startScreenLabel = new Label("Please Sign Up or Login");
-    private Label homeLabel = new Label();
+    private Label homeLabel = new Label("Choose a game :)");
     private Button[][] homeGameArray;
     private Label loginMessage = new Label("Login");
     private Label signupMessage = new Label("Sign up");
@@ -56,6 +56,8 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         signupMessage.setAlignment(Pos.TOP_CENTER);
         loginMessage.setFont(basicFont);
         loginMessage.setAlignment(Pos.TOP_CENTER);
+        homeLabel.setFont(basicFont);
+        homeLabel.setAlignment(Pos.CENTER);
         loginUsernameField.setPromptText("Enter your Username");
         loginPasswordField.setPromptText("Enter your Password");
         loginUsernameField.setAlignment(Pos.CENTER);
@@ -85,10 +87,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         logInButton.setFont(basicFont);
         logInButton.setAlignment(Pos.CENTER);
         logInButton.setTextAlignment(TextAlignment.CENTER);
-        logInButton.setOnAction(event -> {
-            model.setScene(Scenes.LOGIN);
-            System.out.println(loginPasswordField.getStyle());
-        });
+        logInButton.setOnAction(event -> model.setScene(Scenes.LOGIN));
         logInButton.setFocusTraversable(false);
 
         // Creating Back buttons
@@ -121,7 +120,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         signupVBox.setSpacing(10);
         signupVBox.setPadding(new Insets(10, 50, 10, 50));
         signupVBox.setAlignment(Pos.CENTER);
-        signupScene = new Scene(signupVBox, 480, 244);
+        signupScene = new Scene(signupVBox, 500, 250);
 
         // Log into a previously existing account screen
         Button loginSubmitButton = new Button("Submit");
@@ -140,7 +139,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         loginVBox.setSpacing(10);
         loginVBox.setPadding(new Insets(10, 50, 10, 50));
         loginVBox.setAlignment(Pos.CENTER);
-        loginScene = new Scene(loginVBox, 480, 244);
+        loginScene = new Scene(loginVBox, 500, 250);
 
         // Game Home Buttons
         Button blackjackButton = new Button("Blackjack");
@@ -175,8 +174,10 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
 
         // Game Home Scene
         GridPane homeGameGrid = new GridPane();
-        GridPane.setConstraints(homeLabel, 1, 0);
-        homeGameGrid.getChildren().add(homeLabel);
+        homeGameGrid.setPadding(new Insets(10, 10, 10, 10));
+        homeGameGrid.setVgap(5);
+        homeGameGrid.setHgap(5);
+        homeGameGrid.setAlignment(Pos.CENTER);
         GridPane.setConstraints( blackjackButton, 0, 1);
         homeGameGrid.getChildren().add(blackjackButton);
         GridPane.setConstraints(rouletteButton, 1, 1);
@@ -191,7 +192,10 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         homeGameGrid.getChildren().add(horsesButton);
 
         VBox homeVBox = new VBox(homeLabel, homeGameGrid);
-        homeScene = new Scene(homeVBox,480, 244);
+        homeVBox.setPadding(new Insets(20, 0, 20, 0));
+        homeVBox.setAlignment(Pos.CENTER);
+
+        homeScene = new Scene(homeVBox, 500, 275);
 
 
         HBox startScreenHBox = new HBox(signUpButton, logInButton);
@@ -204,7 +208,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         startScreenVBox.setSpacing(30);
         startScreenVBox.setPadding(new Insets(20, 35, 20, 35));
 
-        startupScene = new Scene(startScreenVBox);
+        startupScene = new Scene(startScreenVBox, 500, 250);
         signupBackButton.setOnAction(event -> model.setScene(Scenes.STARTUP));
         loginBackButton.setOnAction(event -> model.setScene(Scenes.STARTUP));
         mainStage.setTitle("Casino GUI");
