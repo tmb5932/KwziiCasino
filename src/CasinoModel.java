@@ -1,24 +1,41 @@
 import java.util.List;
 import java.util.*;
 
+/**
+ * The main model that the GUI works off of for the Casino.
+ * @author Travis Brown (Kwzii)
+ */
 public class CasinoModel {
     public static Player activePlayerAccount;
     AccountData accounts = new AccountData();
     Scenes currentScene;
     HashMap<String, Player> accountMap;
-
     private final List<Observer<CasinoModel, String>> observers = new LinkedList<>();
+
+    /**
+     * Constructor for CasinoModel
+     */
     public CasinoModel() {
         accountMap = accounts.readAccounts();
         currentScene = Scenes.STARTUP;
         this.alertObservers(null);
     }
 
+    /**
+     * Method to increase players chip amount
+     * GUI calls this and this calls player.winChips()
+     * @param amount number of chips won
+     */
     public void winBet(int amount) {
         activePlayerAccount.winChips(amount);
         this.alertObservers("YOU WON " + amount + " CHIPS!!");
     }
 
+    /**
+     * Allows new users to sign up. GUI calls this and this uses the AccountData.java functions
+     * @param usr username in a String
+     * @param pass password in a String
+     */
     public void signUp(String usr, String pass) {
         Player newPlayer = new Player(usr, pass);
         if (accountMap.containsValue(newPlayer)) {
@@ -32,6 +49,9 @@ public class CasinoModel {
         }
     }
 
+    /**
+     * Saves accounts to the text file with the updated chip balance.
+     */
     public void saveAccounts() {
         int count = 0;
         for (Player acc : accountMap.values()) {
@@ -41,7 +61,11 @@ public class CasinoModel {
         alertObservers("Your account has been saved :)");
     }
 
-
+    /**
+     * Allows GUI users to log into a previously created account. Checks with accountMap to see if it is a valid login
+     * @param usr username in a String
+     * @param pass password in a String
+     */
     public void login(String usr, String pass) {
         if (accountMap.containsKey(usr) && accountMap.get(usr).getPassword().equals(pass)) {
             activePlayerAccount = accountMap.get(usr);
@@ -52,15 +76,28 @@ public class CasinoModel {
         }
     }
 
-    public void setScene(Scenes temp) {
-        currentScene = temp;
+    /**
+     * Used to change what scene the view is currently displaying
+     * @param newScene the scene that the view is being updated to
+     */
+    public void setScene(Scenes newScene) {
+        currentScene = newScene;
         alertObservers(null);
     }
 
+    /**
+     * The view calls this to add itself as an observer.
+     * @param observer the view
+     */
     public void addObserver(Observer<CasinoModel, String> observer) {
         this.observers.add(observer);
     }
 
+    /**
+     * Informs the listed observers that the model has been updated, and gives an updated model to the observers
+     * update method.
+     * @param data the message the model is giving to the view
+     */
     private void alertObservers(String data) {
         for (var observer : observers) {
             observer.update(this, data);

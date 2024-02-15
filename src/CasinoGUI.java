@@ -15,6 +15,10 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+/**
+ * The main GUI program for the Casino Project
+ * @author Travis Brown (Kwzii)
+ */
 public class CasinoGUI extends Application implements Observer<CasinoModel, String> {
     private CasinoModel model;
     private final static String RESOURCES_DIR = "resources/";
@@ -41,6 +45,13 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         System.out.println("init: Initialize and connect to model!");
     }
 
+    /**
+     * Initializes and creates all the necessary things for the application to be seen properly
+     * @param stage the primary stage for this application, onto which
+     * the application scene can be set.
+     * Applications may create other stages, if needed, but they will not be
+     * primary stages.
+     */
     @Override
     public void start(Stage stage) {
         mainStage = stage;
@@ -73,7 +84,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
 
 
         // BUTTON SECTION
-            // Startup screen buttons
+        // Startup screen buttons
         Button signUpButton = new Button("Sign up");
         signUpButton.setMinSize(200, 150);
         signUpButton.setFont(basicFont);
@@ -90,19 +101,13 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         logInButton.setOnAction(event -> model.setScene(Scenes.LOGIN));
         logInButton.setFocusTraversable(false);
 
-        // Creating Back buttons
+        // Create new account buttons
         Button signupBackButton = new Button("Back");
         signupBackButton.setMinSize(125, 50);
         signupBackButton.setFont(basicFont);
         signupBackButton.setAlignment(Pos.CENTER);
         signupBackButton.setTextAlignment(TextAlignment.CENTER);
-        Button loginBackButton = new Button("Back");
-        loginBackButton.setMinSize(125, 50);
-        loginBackButton.setFont(basicFont);
-        loginBackButton.setAlignment(Pos.CENTER);
-        loginBackButton.setTextAlignment(TextAlignment.CENTER);
 
-        // Create a new account screen
         Button signupSubmitButton = new Button("Submit");
         signupSubmitButton.setMinSize(125, 50);
         signupSubmitButton.setFont(basicFont);
@@ -121,7 +126,13 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         signupVBox.setAlignment(Pos.CENTER);
         signupScene = new Scene(signupVBox, 500, 250);
 
-        // Log into a previously existing account screen
+        // Log into previously existing account screen
+        Button loginBackButton = new Button("Back");
+        loginBackButton.setMinSize(125, 50);
+        loginBackButton.setFont(basicFont);
+        loginBackButton.setAlignment(Pos.CENTER);
+        loginBackButton.setTextAlignment(TextAlignment.CENTER);
+
         Button loginSubmitButton = new Button("Submit");
         loginSubmitButton.setMinSize(125, 50);
         loginSubmitButton.setFont(basicFont);
@@ -140,6 +151,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         loginVBox.setAlignment(Pos.CENTER);
         loginScene = new Scene(loginVBox, 500, 250);
 
+        // BUTTONS FOR TESTING          TODO: REMOVE THESE WHEN FINISHED
         Button saveButton = new Button("Save");
         saveButton.setMinSize(150, 100);
         saveButton.setFont(basicFont);
@@ -151,8 +163,6 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         testButton.setFont(basicFont);
         testButton.setAlignment(Pos.CENTER);
         testButton.setOnAction(e -> model.winBet(500));
-
-
 
         // Game Home Buttons
         Button blackjackButton = new Button("Blackjack");
@@ -208,12 +218,10 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         GridPane.setConstraints( testButton, 3, 0);
         homeGameGrid.getChildren().add(testButton);
 
-
-
         VBox homeVBox = new VBox(homeLabel, homeGameGrid);
         homeVBox.setPadding(new Insets(20, 0, 20, 0));
         homeVBox.setAlignment(Pos.CENTER);
-        homeScene = new Scene(homeVBox, 800, 450); // 500 275
+        homeScene = new Scene(homeVBox, 800, 450);
 
         HBox startScreenHBox = new HBox(signUpButton, logInButton);
         startScreenHBox.setAlignment(Pos.CENTER);
@@ -236,12 +244,22 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         centerScreen();
     }
 
+    /**
+     * Centers the application on the users screen
+     */
     void centerScreen() {
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
         mainStage.setX((screenBounds.getWidth() - mainStage.getWidth()) / 2);
         mainStage.setY((screenBounds.getHeight() - mainStage.getHeight()) / 2);
     }
 
+    /**
+     * Update method to update the application window to the new information
+     * @param casinoModel the object that wishes to inform this object
+     *                about something that has happened.
+     * @param text optional data the server.model can send to the observer
+     *
+     */
     @Override
     public void update(CasinoModel casinoModel, String text) {
         model = casinoModel;
