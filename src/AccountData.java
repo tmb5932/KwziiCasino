@@ -8,15 +8,14 @@ import java.util.Scanner; // Import the Scanner class to read text files
 public class AccountData {
     private final String filename = "data/savedAccounts.txt";
 
-    public void saveAccount(Player playerAccount) {
+    public void saveAccount(Player playerAccount, boolean append) {
         try {
-            FileWriter writer = new FileWriter(filename, true);
+            FileWriter writer = new FileWriter(filename, append);
             writer.write(playerAccount.getUsername() + ", " + playerAccount.getPassword() + ", " + playerAccount.getChips() + "\n");
             writer.close();
-            System.out.println("Successfully saved the account.");
+            System.out.println("Successfully saved the account " + playerAccount.getUsername()+ ": " + playerAccount.getChips());
         } catch (IOException e) {
             System.out.println("An error occurred saving the account.");
-            e.printStackTrace();
         }
     }
 
@@ -34,7 +33,6 @@ public class AccountData {
             myReader.close();
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
-            e.printStackTrace();
         }
         return accountMap;
     }

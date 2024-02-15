@@ -24,7 +24,7 @@ public class CasinoMain {
                     System.out.println("This username is already taken, please try another...");
                     continue;
                 }
-                accounts.saveAccount(newPlayer);
+                accounts.saveAccount(newPlayer, true);
                 activePlayer = newPlayer;
                 break;
             } else if (loginSignup.equals("l") || loginSignup.equals("L")) {
