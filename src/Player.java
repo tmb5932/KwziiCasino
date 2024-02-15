@@ -11,37 +11,71 @@ public class Player {
     private final String password;
     private int chips;
 
-
+    /**
+     * Constructor for a new player account. Calls other constructor with 150 starting chips.
+     * @param username username of the new account
+     * @param password password of the new account
+     */
     public Player(String username, String password) {
         this(username, password, 150);
     }
 
-    public Player(String username, String password, int chips) {
+    /**
+     * Constructor for player account
+     * @param username username of the account
+     * @param password password of the account
+     * @param chips the amount of betting chips they have
+     */
+    protected Player(String username, String password, int chips) {
         this.username = username;
         this.password = password;
         this.chips = chips;
     }
 
+    /**
+     * Getter for the username
+     * @return username of the account
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Getter for the password
+     * @return password of the account
+     */
     protected String getPassword() {
         return password;
     }
 
+    /**
+     * Decreases chip amount by whatever was bet (passed in)
+     * @param inc the amount of chips bet
+     */
     public void betChips(int inc) {
         chips -= inc;
     }
 
+    /**
+     * Increases chip amount by whatever was won (passed in)
+     * @param inc the amount of chips won
+     */
     public void winChips(int inc) {
         chips += inc;
     }
 
+    /**
+     * Getter for chip
+     * @return number of chips
+     */
     public int getChips() {
         return chips;
     }
 
+    /**
+     * toString for account
+     * @return String of information about the account
+     */
     @Override
     public String toString() {
         return "Player{" +
@@ -51,6 +85,11 @@ public class Player {
                 '}';
     }
 
+    /**
+     * Equals method to check equality
+     * @param o the object that is being checked for equality with this account
+     * @return boolean true if the accounts are the same, and false otherwise
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -59,6 +98,10 @@ public class Player {
         return Objects.equals(username, player.username) && Objects.equals(password, player.password);
     }
 
+    /**
+     * The hashcode of the account
+     * @return int hashcode
+     */
     @Override
     public int hashCode() {
         return Objects.hash(username, password);

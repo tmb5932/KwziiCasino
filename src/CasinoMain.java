@@ -1,9 +1,19 @@
 import java.util.Scanner;
 import java.util.HashMap;
 
+/**
+ * Casino main file to test out different function calls, while also serving as a legacy PTUI of the Casino.
+ * Has no games, only has the login and signup system.
+ * @author Travis Brown (Kwzii)
+ */
 public class CasinoMain {
     public static Player activePlayer;
     static AccountData accounts = new AccountData();
+
+    /**
+     * The main function to enter the Kwzii Casino
+     * @param args command line arguments for this file. Has no use currently
+     */
     public static void main(String[] args) {
         HashMap<String, Player> accountMap = accounts.readAccounts();
         Scanner scanner = new Scanner(System.in);
@@ -42,7 +52,6 @@ public class CasinoMain {
                 System.out.println("Invalid key entered...");
             }
         }
-
         System.out.println(activePlayer);
     }
 }
