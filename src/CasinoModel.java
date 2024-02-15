@@ -11,24 +11,27 @@ public class CasinoModel {
     public CasinoModel() {
         accountMap = accounts.readAccounts();
         currentScene = Scenes.HOMEPAGE;
-        this.alertObservers("");
+        this.alertObservers(null);
     }
 
     public void signUp(String usr, String pass) {
         Player newPlayer = new Player(usr, pass);
         if (accountMap.containsValue(newPlayer)) {
-            alertObservers("This account already exists, please login...");
+            alertObservers("This account already exists, please login.");
         } else if (accountMap.containsKey(usr)) {
-            alertObservers("This username is already taken, please try another...");
+            alertObservers("This username is already taken, please try another.");
         } else {
             accounts.saveAccount(newPlayer);
             activePlayerAccount = newPlayer;
+            currentScene = Scenes.GAMESTAGE;
+            alertObservers("You have now been signed in, " + usr);
         }
     }
 
     public void login(String usr, String pass) {
         if (accountMap.containsKey(usr) && accountMap.get(usr).getPassword().equals(pass)) {
             activePlayerAccount = accountMap.get(usr);
+            currentScene = Scenes.GAMESTAGE;
             alertObservers("You have now been signed in, " + usr);
         } else {
             alertObservers("The credentials you have inputted are incorrect");
@@ -37,7 +40,7 @@ public class CasinoModel {
 
     public void setScene(Scenes temp) {
         currentScene = temp;
-        alertObservers("Scene Changed");
+        alertObservers(null);
     }
 
     public void addObserver(Observer<CasinoModel, String> observer) {
