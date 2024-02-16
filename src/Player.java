@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
 
 /**
@@ -10,6 +13,7 @@ public class Player {
     private final String username;
     private final String password;
     private int chips;
+    private ArrayList<PlayingCards> hand = new ArrayList<>();
 
     /**
      * Constructor for a new player account. Calls other constructor with 150 starting chips.
@@ -70,6 +74,14 @@ public class Player {
      */
     public int getChips() {
         return chips;
+    }
+
+    public ArrayList<PlayingCards> getHand() {
+        return hand;
+    }
+
+    public void addHand(PlayingCards card) {
+        this.hand.add(card);
     }
 
     /**
