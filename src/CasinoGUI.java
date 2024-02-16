@@ -64,6 +64,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     @Override
     public void start(Stage stage) {
         createMainStage(stage);
+        createBlackjackScene();
         mainStage.setTitle("Casino GUI");
         update(model, "Please Sign Up or Login");
         mainStage.setScene(startupScene);
@@ -253,11 +254,16 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         loginBackButton.setOnAction(event -> model.setScene(Scenes.STARTUP));
     }
 
-
+    /**
+     * Method to create blackjack scene for view
+     */
     void createBlackjackScene() {
 
     }
 
+    /**
+     * Method to create all playing cards from text file to use for card games
+     */
     void populateCards() {
         String fileName = "data/playingCards.txt";
         File file = new File(fileName);
@@ -320,7 +326,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
 
             case HOME -> mainStage.setScene(homeScene);
 
-            case BLACKJACK -> mainStage.setScene(blackjackScene); // TODO: Make a scene for each of these in their own method.
+            case BLACKJACK -> mainStage.setScene(blackjackScene);
 
             case ROULETTE -> mainStage.setScene(rouletteScene);
 
