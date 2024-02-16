@@ -6,11 +6,15 @@ import java.util.*;
  * @author Travis Brown (Kwzii)
  */
 public class CasinoModel {
+    private final static String RESOURCES_DIR = "resources/";
     public static Player activePlayerAccount;
     AccountData accounts = new AccountData();
     Scenes currentScene;
     HashMap<String, Player> accountMap;
     private final List<Observer<CasinoModel, String>> observers = new LinkedList<>();
+    private HashSet<PlayingCards> fullCardDeck = new HashSet<>();
+    private HashSet<PlayingCards> currentDeck = new HashSet<>();
+    private final PlayingCards coveredCard = new PlayingCards(PlayingCards.Suit.BACK, 0, RESOURCES_DIR + "card_back.svg");
 
     /**
      * Constructor for CasinoModel
@@ -65,6 +69,22 @@ public class CasinoModel {
             count++;
         }
         alertObservers(null);
+    }
+
+    public PlayingCards getCoveredCard() {
+        return coveredCard;
+    }
+
+    public void setFullCardDeck(HashSet<PlayingCards> fullCardDeck) {
+        this.fullCardDeck = fullCardDeck;
+    }
+
+    public HashSet<PlayingCards> getFullCardDeck() {
+        return fullCardDeck;
+    }
+
+    public void resetCardDeck() {
+        currentDeck = fullCardDeck;
     }
 
     /**
