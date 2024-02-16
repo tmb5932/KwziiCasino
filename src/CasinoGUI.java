@@ -15,6 +15,9 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import java.io.*;
+import java.util.HashSet;
+
 /**
  * The main GUI program for the Casino Project
  * @author Travis Brown (Kwzii)
@@ -47,6 +50,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     public void init() {
         this.model = new CasinoModel();
         model.addObserver(this);
+        populateCards();
         System.out.println("init: Initialize and connect to model!");
     }
 
@@ -247,6 +251,45 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         startupScene = new Scene(startScreenVBox, 500, 250);
         signupBackButton.setOnAction(event -> model.setScene(Scenes.STARTUP));
         loginBackButton.setOnAction(event -> model.setScene(Scenes.STARTUP));
+    }
+
+
+    void createBlackjackScene() {
+
+    }
+
+    void populateCards() {
+        String fileName = "data/playingCards.txt";
+        File file = new File(fileName);
+        HashSet<PlayingCards> pcards = new HashSet<>();
+        try (FileReader fr = new FileReader(file)) {
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+            int val;
+            PlayingCards.Suit suitVal = null;
+            while ((line = br.readLine()) != null) {
+                String[] info = line.strip().split("_");
+                if (line.equals("card_back.svg")) {
+                    continue;
+                }
+                switch (info[0]) {
+                    case "ace" -> val = 11;
+                    case "jack", "king", "queen" -> val = 10;
+                    default -> val = Integer.parseInt(info[0]);
+                }
+                switch (info[2]) {
+                    case "hearts.svg" -> suitVal = PlayingCards.Suit.HEARTS;
+                    case "spades.svg" -> suitVal = PlayingCards.Suit.SPADES;
+                    case "diamonds.svg" -> suitVal = PlayingCards.Suit.DIAMONDS;
+                    case "clubs.svg" -> suitVal = PlayingCards.Suit.CLUBS;
+                }
+                PlayingCards card = new PlayingCards(suitVal, val, RESOURCES_DIR + line);
+                pcards.add(card);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        model.setFullCardDeck(pcards);
     }
 
     /**
