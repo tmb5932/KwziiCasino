@@ -271,7 +271,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         try (FileReader fr = new FileReader(file)) {
             BufferedReader br = new BufferedReader(fr);
             String line;
-            int val;
+            int val = 10;
             PlayingCards.Face face;
             PlayingCards.Suit suitVal = null;
             while ((line = br.readLine()) != null) {
@@ -280,16 +280,17 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                     continue;
                 }
                 switch (info[0]) {
-                    case "ace" -> val = 11;
-                    case "jack", "king", "queen" -> val = 10;
-                    default -> val = Integer.parseInt(info[0]);
-                }
-                switch (info[0]) {
-                    case "ace" -> face = PlayingCards.Face.ACE;
+                    case "ace" -> {
+                        face = PlayingCards.Face.ACE;
+                        val = 11;
+                    }
                     case "jack" -> face = PlayingCards.Face.JACK;
                     case "king" -> face = PlayingCards.Face.KING;
                     case "queen" -> face = PlayingCards.Face.QUEEN;
-                    default -> face = PlayingCards.Face.NONFACE;
+                    default -> {
+                        face = PlayingCards.Face.NONFACE;
+                        val = Integer.parseInt(info[0]);
+                    }
                 }
                 switch (info[2]) {
                     case "hearts.svg" -> suitVal = PlayingCards.Suit.HEARTS;
