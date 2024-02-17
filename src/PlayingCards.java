@@ -8,12 +8,23 @@ public class PlayingCards {
         SPADES,
         BACK
     }
+
+    public enum Face {
+        ACE,
+        JACK,
+        KING,
+        QUEEN,
+        NONFACE
+    }
+
     private final Suit suit;
+    private final Face face;
     private final int value;
     private final String fileName;
 
-    PlayingCards(Suit suit, int value, String fileName) {
+    PlayingCards(Suit suit, Face face, int value, String fileName) {
         this.suit = suit;
+        this.face = face;
         this.value = value;
         this.fileName = fileName;
     }
@@ -24,6 +35,10 @@ public class PlayingCards {
 
     public Suit getSuit() {
         return suit;
+    }
+
+    public Face getFace() {
+        return face;
     }
 
     public String getFileName() {

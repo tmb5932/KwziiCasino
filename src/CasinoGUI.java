@@ -272,6 +272,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             BufferedReader br = new BufferedReader(fr);
             String line;
             int val;
+            PlayingCards.Face face;
             PlayingCards.Suit suitVal = null;
             while ((line = br.readLine()) != null) {
                 String[] info = line.strip().split("_");
@@ -283,13 +284,20 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                     case "jack", "king", "queen" -> val = 10;
                     default -> val = Integer.parseInt(info[0]);
                 }
+                switch (info[0]) {
+                    case "ace" -> face = PlayingCards.Face.ACE;
+                    case "jack" -> face = PlayingCards.Face.JACK;
+                    case "king" -> face = PlayingCards.Face.KING;
+                    case "queen" -> face = PlayingCards.Face.QUEEN;
+                    default -> face = PlayingCards.Face.NONFACE;
+                }
                 switch (info[2]) {
                     case "hearts.svg" -> suitVal = PlayingCards.Suit.HEARTS;
                     case "spades.svg" -> suitVal = PlayingCards.Suit.SPADES;
                     case "diamonds.svg" -> suitVal = PlayingCards.Suit.DIAMONDS;
                     case "clubs.svg" -> suitVal = PlayingCards.Suit.CLUBS;
                 }
-                PlayingCards card = new PlayingCards(suitVal, val, RESOURCES_DIR + line);
+                PlayingCards card = new PlayingCards(suitVal, face, val, RESOURCES_DIR + line);
                 pcards.add(card);
             }
         } catch (IOException e) {
