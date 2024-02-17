@@ -14,7 +14,7 @@ public class CasinoModel {
     private final List<Observer<CasinoModel, String>> observers = new LinkedList<>();
     private HashSet<PlayingCards> fullCardDeck = new HashSet<>();
     private HashSet<PlayingCards> currentDeck = new HashSet<>();
-    private final PlayingCards coveredCard = new PlayingCards(PlayingCards.Suit.BACK, 0, RESOURCES_DIR + "card_back.svg");
+    private final PlayingCards coveredCard = new PlayingCards(PlayingCards.Suit.BACK, PlayingCards.Face.NONFACE, 0, RESOURCES_DIR + "card_back.svg");
 
     /**
      * Constructor for CasinoModel
