@@ -24,7 +24,7 @@ import java.util.HashSet;
  */
 public class CasinoGUI extends Application implements Observer<CasinoModel, String> {
     private CasinoModel model;
-    private final static String RESOURCES_DIR = "resources/";
+    private final static String RESOURCES_DIR = "resources/PNG-cards/";
     private final Label startScreenLabel = new Label("Please Sign Up or Login");
     private final Label homeLabel = new Label("Choose a game :)");
     private final Label loginMessage = new Label("Login");
@@ -64,7 +64,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     @Override
     public void start(Stage stage) {
         createMainStage(stage);
-        createBlackjackScene();
+//        blackjackScene = BlackjackGame.createBlackjackScene();
         mainStage.setTitle("Casino GUI");
         update(model, "Please Sign Up or Login");
         mainStage.setScene(startupScene);
@@ -254,12 +254,6 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         loginBackButton.setOnAction(event -> model.setScene(Scenes.STARTUP));
     }
 
-    /**
-     * Method to create blackjack scene for view
-     */
-    void createBlackjackScene() {
-
-    }
 
     /**
      * Method to create all playing cards from text file to use for card games
@@ -276,7 +270,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             PlayingCards.Suit suitVal = null;
             while ((line = br.readLine()) != null) {
                 String[] info = line.strip().split("_");
-                if (line.equals("card_back.svg")) {
+                if (line.equals("card_back.png")) {
                     continue;
                 }
                 switch (info[0]) {
@@ -293,10 +287,10 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                     }
                 }
                 switch (info[2]) {
-                    case "hearts.svg" -> suitVal = PlayingCards.Suit.HEARTS;
-                    case "spades.svg" -> suitVal = PlayingCards.Suit.SPADES;
-                    case "diamonds.svg" -> suitVal = PlayingCards.Suit.DIAMONDS;
-                    case "clubs.svg" -> suitVal = PlayingCards.Suit.CLUBS;
+                    case "hearts.png" -> suitVal = PlayingCards.Suit.HEARTS;
+                    case "spades.png" -> suitVal = PlayingCards.Suit.SPADES;
+                    case "diamonds.png" -> suitVal = PlayingCards.Suit.DIAMONDS;
+                    case "clubs.png" -> suitVal = PlayingCards.Suit.CLUBS;
                 }
                 PlayingCards card = new PlayingCards(suitVal, face, val, RESOURCES_DIR + line);
                 pcards.add(card);
