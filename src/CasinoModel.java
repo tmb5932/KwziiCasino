@@ -52,14 +52,20 @@ public class CasinoModel {
      * Method to place bets
      * @param amount number of chips bet
      */
-    public void placeBet(int amount) {
-        if (activePlayerAccount.getChips() > amount) {
+    public int placeBet(int amount) {
+        if (amount == 0) {
+            currentBet = 0;
+            return 0;
+        }
+        else if (activePlayerAccount.getChips() >= amount) {
             currentBet = amount;
             activePlayerAccount.betChips(amount);
             saveAccounts();
             this.alertObservers("You have bet " + amount + " chips.");
+            return 0;
         } else {
             alertObservers("You ain't that rich buddy. Nice try though.");
+            return 1;
         }
     }
 
@@ -86,10 +92,10 @@ public class CasinoModel {
      * @return the file name of the card that was drawn from the deck
      */
     public String playerHitBlackjack() {
-        // TODO make this random instead of hardcoded
-        int randomNum = 10; // TODO Set this to something
-        PlayingCards card = currentDeck.get(randomNum);
-        currentDeck.remove(randomNum);
+        Random rand = new Random();
+        int randInt = rand.nextInt(currentDeck.size()-1);
+        PlayingCards card = currentDeck.get(randInt);
+        currentDeck.remove(randInt);
         playerHand.add(card);
         return card.getFileName();
     }
@@ -99,10 +105,10 @@ public class CasinoModel {
      * @return the file name of the card that was drawn from the deck
      */
     public String dealerHitBlackjack() {
-        // TODO make this random instead of hardcoded
-        int randomNum = 10; // TODO Set this to something
-        PlayingCards card = currentDeck.get(randomNum);
-        currentDeck.remove(randomNum);
+        Random rand = new Random();
+        int randInt = rand.nextInt(currentDeck.size()-1);
+        PlayingCards card = currentDeck.get(randInt);
+        currentDeck.remove(randInt);
         dealerHand.add(card);
         return card.getFileName();
     }
@@ -137,11 +143,12 @@ public class CasinoModel {
 
     /**
      * Method to see if the blackjack game has been won or lost after every hit
-     * @return a GameResults enum, WON if player won, LOSE if player lost, and NONE if the game is still ongoing
+     * @return a GameResults enum, WIN if player won, LOSE if player lost, and NONE if the game is still ongoing
      */
     public GameResults midCheckBjWin() {
         if (bjGetHandTotal('P') == 21) {
             alertObservers("YOU WON!!!");
+            winBet(2);
             return GameResults.WIN;
         } else if (bjGetHandTotal('P') > 21) {
             alertObservers("You lost :(");
@@ -152,26 +159,32 @@ public class CasinoModel {
 
     /**
      * Method to see if the blackjack game has been won or lost after staying
-     * @return a GameResults enum, WIN if player won, LOSE if player lost, and NONE if the game is still ongoing
      */
-    public GameResults finalCheckBjWin() {
+    public void finalCheckBjWin() {
         if (bjGetHandTotal('P') > 21) {
             alertObservers("You lost :(");
-            return GameResults.LOSE;
-        } else if (bjGetHandTotal('P') == 21 && playerHand.size() == 2) {
-            alertObservers("BLACKJACK!!!");
-            return GameResults.WIN;
         } else if ((bjGetHandTotal('P') == 21) ||
                 (bjGetHandTotal('P') > bjGetHandTotal('D')) ||
                 (bjGetHandTotal('D') > 21)) {
+            winBet(2);
             alertObservers("YOU WON!!!");
-            return GameResults.WIN;
         } else {
-            alertObservers("ERROR"); // SHOULD NEVER GET HERE
-            return GameResults.NONE;
+            alertObservers("You lost :(");
         }
     }
 
+    /**
+     * Method to see if the blackjack game has been won when initial cards are placed
+     * @return a GameResults enum, WIN if player won and NONE if the game is still ongoing
+     */
+    public GameResults initialCheckBjWin() {
+        if (bjGetHandTotal('P') == 21 && playerHand.size() == 2) {
+            alertObservers("BLACKJACK!!!");
+            winBet(2.5);
+            return GameResults.WIN;
+        } else
+            return GameResults.NONE;
+    }
 
     /**
      * Saves accounts to the text file with the updated chip balance.
