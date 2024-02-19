@@ -19,7 +19,7 @@ public class Player {
      * @param password password of the new account
      */
     public Player(String username, String password) {
-        this(username, password, 150);
+        this(username, password, 1500);
     }
 
     /**
