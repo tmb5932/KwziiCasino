@@ -136,17 +136,42 @@ public class CasinoModel {
     }
 
     /**
-     * Method to see if the blackjack game has been won or lost
+     * Method to see if the blackjack game has been won or lost after every hit
      * @return a GameResults enum, WON if player won, LOSE if player lost, and NONE if the game is still ongoing
      */
-    public GameResults checkBjWin() {
-        if (currentBet > 15000) {
+    public GameResults midCheckBjWin() {
+        if (bjGetHandTotal('P') == 21) {
+            alertObservers("YOU WON!!!");
             return GameResults.WIN;
-        } else if (currentBet > 1000 && currentBet < 15000) {
+        } else if (bjGetHandTotal('P') > 21) {
+            alertObservers("You lost :(");
             return GameResults.LOSE;
         }
         return GameResults.NONE;
     }
+
+    /**
+     * Method to see if the blackjack game has been won or lost after staying
+     * @return a GameResults enum, WIN if player won, LOSE if player lost, and NONE if the game is still ongoing
+     */
+    public GameResults finalCheckBjWin() {
+        if (bjGetHandTotal('P') > 21) {
+            alertObservers("You lost :(");
+            return GameResults.LOSE;
+        } else if (bjGetHandTotal('P') == 21 && playerHand.size() == 2) {
+            alertObservers("BLACKJACK!!!");
+            return GameResults.WIN;
+        } else if ((bjGetHandTotal('P') == 21) ||
+                (bjGetHandTotal('P') > bjGetHandTotal('D')) ||
+                (bjGetHandTotal('D') > 21)) {
+            alertObservers("YOU WON!!!");
+            return GameResults.WIN;
+        } else {
+            alertObservers("ERROR"); // SHOULD NEVER GET HERE
+            return GameResults.NONE;
+        }
+    }
+
 
     /**
      * Saves accounts to the text file with the updated chip balance.
