@@ -1,4 +1,3 @@
-import java.lang.reflect.Array;
 import java.util.List;
 import java.util.*;
 
@@ -16,6 +15,8 @@ public class CasinoModel {
     private int currentBet = 0;
     private ArrayList<PlayingCards> fullCardDeck = new ArrayList<>();
     private ArrayList<PlayingCards> currentDeck = new ArrayList<>();
+    private ArrayList<PlayingCards> playerHand = new ArrayList<>();
+    private ArrayList<PlayingCards> dealerHand = new ArrayList<>();
     private final PlayingCards coveredCard = new PlayingCards(PlayingCards.Suit.BACK, PlayingCards.Face.NONFACE, 0, RESOURCES_DIR + "card_back.png");
 
     /**
@@ -81,17 +82,55 @@ public class CasinoModel {
     }
 
     /**
-     * Method to return a random card from the current deck
+     * Method to return a random card from the current deck for player
      * @return the file name of the card that was drawn from the deck
      */
-    public String hitBlackjack() {
+    public String playerHitBlackjack() {
         // TODO make this random instead of hardcoded
         int randomNum = 10; // TODO Set this to something
-        String card = currentDeck.get(randomNum).getFileName();
+        PlayingCards card = currentDeck.get(randomNum);
         currentDeck.remove(randomNum);
-        return card;
+        playerHand.add(card);
+        return card.getFileName();
     }
 
+    /**
+     * Method to return a random card from the current deck for dealer
+     * @return the file name of the card that was drawn from the deck
+     */
+    public String dealerHitBlackjack() {
+        // TODO make this random instead of hardcoded
+        int randomNum = 10; // TODO Set this to something
+        PlayingCards card = currentDeck.get(randomNum);
+        currentDeck.remove(randomNum);
+        dealerHand.add(card);
+        return card.getFileName();
+    }
+
+    /**
+     * Getter for the total of the hand of whichever person is given in param
+     * @param person Whether the call wants the dealers hand total or the players hand total 'D' or 'P'
+     * @return int value of the hand
+     */
+    public int bjGetHandTotal(char person){
+        int result = 0;
+        if (person == 'D')
+        {
+            for (PlayingCards p : dealerHand) {
+                result += p.getValue();
+            }
+        } else if (person == 'P'){
+            for (PlayingCards p : playerHand) {
+                result += p.getValue();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Getter for covered card
+     * @return the filename for the covered card
+     */
     public String getBackCard() {
         return coveredCard.getFileName();
     }
@@ -140,9 +179,12 @@ public class CasinoModel {
 
     /**
      * Method to add all the lost cards back to the current deck for when resetting game or starting a different game
+     * Also resets dealer and player hands for games that have those
      */
     public void resetCardDeck() {
         currentDeck = new ArrayList<>(fullCardDeck);
+        playerHand = new ArrayList<>();
+        dealerHand = new ArrayList<>();
     }
 
     /**
