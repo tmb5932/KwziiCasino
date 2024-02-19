@@ -1,10 +1,6 @@
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Parent;
+import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -12,9 +8,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
@@ -23,7 +17,6 @@ import javafx.util.Duration;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * The main GUI program for the Casino Project
@@ -32,10 +25,14 @@ import java.util.Objects;
 public class CasinoGUI extends Application implements Observer<CasinoModel, String> {
     private CasinoModel model;
     private final static String RESOURCES_DIR = "resources/PNG-cards/";
+    private boolean loggedin;
     private final Label startScreenLabel = new Label("Please Sign Up or Login");
     private final Label homeLabel = new Label("Choose a game :)");
     private final Label loginMessage = new Label("Login");
     private final Label signupMessage = new Label("Sign up");
+    private Label bjCreditLabel = new Label("Credits: " + 0);
+    private Label homeCreditLabel = new Label("Credits: " + 0);
+    private Label blackjackAlertMessage = new Label("");
     private final Font basicFont = new Font("Ariel", 19);
     private final Font largeFont = new Font("Ariel", 24);
     private Stage mainStage;
@@ -116,6 +113,9 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         PasswordField signupPassField = new PasswordField();
 
         // LABEL SECTION
+        homeCreditLabel.setFont(basicFont);
+        homeCreditLabel.setAlignment(Pos.CENTER);
+
         startScreenLabel.setFont(basicFont);
         startScreenLabel.setAlignment(Pos.TOP_CENTER);
 
@@ -173,12 +173,11 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         VBox signupVBox = new VBox(signupMessage, signupUsrField,
                 signupPassField, signupSubmitButton, signupBackButton);
         signupSubmitButton.setOnAction(e -> {
-            if ((signupUsrField.getText() != null
-                    && !signupPassField.getText().isEmpty())) {
-                signupMessage.setText(signupUsrField.getText() + ", thank you for signing up!");
+            if ((signupUsrField.getText() != null && !signupPassField.getText().isEmpty())) {
+                model.updateModel(signupUsrField.getText() + ", thank you for signing up!");
                 model.signUp(signupUsrField.getText(), signupPassField.getText());
             } else {
-                signupMessage.setText("You have not entered the required fields.");
+                model.updateModel("You have not entered the required fields.");
             }
         });
         signupVBox.setSpacing(10);
@@ -201,10 +200,10 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                 loginSubmitButton, loginBackButton);
         loginSubmitButton.setOnAction(e -> {
             if ((loginUsrField.getText() != null && !loginPassField.getText().isEmpty())) {
-                loginMessage.setText(loginUsrField.getText() + ", thank you for logging in!");
+                model.updateModel(loginUsrField.getText() + ", thank you for logging in!");
                 model.login(loginUsrField.getText(), loginPassField.getText());
             } else {
-                loginMessage.setText("You have not entered the required fields.");
+                model.updateModel("You have not entered the required fields.");
             }
         });
         loginVBox.setSpacing(10);
@@ -250,7 +249,9 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         homeGameGrid.setVgap(15);
         homeGameGrid.setHgap(15);
         homeGameGrid.setAlignment(Pos.CENTER);
-        GridPane.setConstraints( blackjackButton, 0, 1);
+        GridPane.setConstraints(homeCreditLabel, 4, 0);
+        homeGameGrid.getChildren().add(homeCreditLabel);
+        GridPane.setConstraints(blackjackButton, 0, 1);
         homeGameGrid.getChildren().add(blackjackButton);
         GridPane.setConstraints(rouletteButton, 1, 1);
         homeGameGrid.getChildren().add(rouletteButton);
@@ -283,60 +284,186 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         loginBackButton.setOnAction(event -> model.setScene(Scenes.STARTUP));
     }
 
-
+    /**
+     * Creates the blackjack scene and all of its actions
+     * @return the created blackjack scene
+     */
     public Scene blackjack() {
         Label dealerLabel = new Label("Dealer");
         dealerLabel.setFont(largeFont);
         Label playerLabel = new Label("Player");
         playerLabel.setFont(largeFont);
+        playerLabel.setFont(largeFont);
+
+        blackjackAlertMessage.setFont(basicFont);
+
         HBox playerHand = new HBox();
         playerHand.setAlignment(Pos.CENTER);
+        playerHand.setMinHeight(175);
+
         HBox dealerHand = new HBox();
         dealerHand.setAlignment(Pos.CENTER);
+        dealerHand.setMinHeight(175);
 
         Button hitButton = new Button("HIT");
         hitButton.setMinSize(100, 75);
         hitButton.setFont(basicFont);
         hitButton.setAlignment(Pos.CENTER);
         hitButton.setTextAlignment(TextAlignment.CENTER);
-        hitButton.setOnAction(event -> {
-            ImageView temp = new ImageView(new Image("file:" + model.hitBlackjack()));
-            temp.setFitHeight(175);
-            temp.setPreserveRatio(true);
-            playerHand.getChildren().add(temp);
-            update(model, null);
-        });
+
         Button stayButton = new Button("STAY");
         stayButton.setMinSize(100, 75);
         stayButton.setFont(basicFont);
         stayButton.setAlignment(Pos.CENTER);
         stayButton.setTextAlignment(TextAlignment.CENTER);
 
-        // TODO add textfield to enter a bet, then on submit, have it place 1 face up and 1 facedown card for dealer,
-        // TODO and 2 for player. And maybe try and add the deck top right
-        HBox buttonHBox = new HBox(hitButton, stayButton);
+        Button submitBjBetButton = new Button("Submit Bet");
+        submitBjBetButton.setMinSize(100, 75);
+        submitBjBetButton.setFont(basicFont);
+        submitBjBetButton.setAlignment(Pos.CENTER);
+        submitBjBetButton.setTextAlignment(TextAlignment.CENTER);
+
+        Button playAgainBjButton = new Button("Play Again?");
+        playAgainBjButton.setMinSize(100, 75);
+        playAgainBjButton.setFont(basicFont);
+        playAgainBjButton.setAlignment(Pos.CENTER);
+        playAgainBjButton.setTextAlignment(TextAlignment.CENTER);
+
+        TextField enterBetField = new TextField();
+        enterBetField.setPromptText("Enter your bet");
+        enterBetField.setAlignment(Pos.CENTER);
+
+        ImageView backCard = new ImageView(new Image("file:" + model.getBackCard()));
+        backCard.setFitHeight(175);
+        backCard.setPreserveRatio(true);
+
+        ImageView backCardStack = new ImageView(new Image("file:" + model.getBackCard()));
+        backCardStack.setFitHeight(175);
+        backCardStack.setPreserveRatio(true);
+
+        // TODO On submit, have it place 1 face up and 1 facedown card for dealer, and 2 for player.
+        //  And maybe try and add the deck top right
+        HBox buttonHBox = new HBox(enterBetField, submitBjBetButton);
         buttonHBox.setAlignment(Pos.CENTER);
         buttonHBox.setSpacing(10);
-        // todo maybe have the submit button not only place the bet, but also delete the textfield and submit button from hbox
-        // todo and replace them with the hit and stay buttons
 
-        //todo add a current credit amount and back button somewhere onscreen
-        VBox finVBox = new VBox(dealerLabel, dealerHand, playerLabel, playerHand, buttonHBox);
-        finVBox.setAlignment(Pos.CENTER);
-        finVBox.setSpacing(30);
-        finVBox.setPadding(new Insets(20, 35, 20, 35));
+        submitBjBetButton.setOnAction(e -> {
+            if (!enterBetField.getText().isEmpty()) {
+                try {
+                    model.placeBet(Integer.parseInt(enterBetField.getText()));
+                    blackjackAlertMessage.setText("");
+                    buttonHBox.getChildren().removeAll(enterBetField, submitBjBetButton);
+                    buttonHBox.getChildren().addAll(hitButton, stayButton);
 
-        return new Scene(finVBox, 1100, 750);
+                    ImageView dealer1 = new ImageView(new Image("file:" + model.hitBlackjack()));
+                    dealer1.setFitHeight(175);
+                    dealer1.setPreserveRatio(true);
+                    dealerHand.getChildren().add(dealer1);
+                    placeCard(dealer1, backCard);
+
+                    ImageView dealer2 = new ImageView(new Image("file:" + model.getBackCard()));
+                    dealer2.setFitHeight(175);
+                    dealer2.setPreserveRatio(true);
+                    dealerHand.getChildren().add(dealer2);
+                    placeCard(dealer2, backCard);
+
+                } catch (NumberFormatException nfe) {
+                    model.updateModel("Please enter a number");
+                }
+            } else {
+                model.updateModel("You have not entered a bet");
+            }
+        });
+
+        playAgainBjButton.setOnAction(e -> {
+            buttonHBox.getChildren().remove(playAgainBjButton);
+            buttonHBox.getChildren().addAll(enterBetField, submitBjBetButton);
+        });
+
+        hitButton.setOnAction(event -> {
+            ImageView temp = new ImageView(new Image("file:" + model.hitBlackjack()));
+            temp.setFitHeight(175);
+            temp.setPreserveRatio(true);
+            playerHand.getChildren().add(temp);
+            placeCard(temp, backCard);
+            if (model.checkBjWin() == GameResults.WIN) {
+                buttonHBox.getChildren().removeAll(hitButton, stayButton);
+                buttonHBox.getChildren().addAll(playAgainBjButton);
+            }
+        });
+
+        Button gameBackButton = new Button("Back");
+        gameBackButton.setMinSize(125, 50);
+        gameBackButton.setFont(basicFont);
+        gameBackButton.setAlignment(Pos.CENTER);
+        gameBackButton.setTextAlignment(TextAlignment.CENTER);
+        gameBackButton.setOnAction(e ->{
+            model.resetCardDeck();
+            playerHand.getChildren().clear();
+            dealerHand.getChildren().clear();
+            if(buttonHBox.getChildren().contains(hitButton)) {
+                buttonHBox.getChildren().removeAll(hitButton, stayButton);
+                buttonHBox.getChildren().addAll(enterBetField, submitBjBetButton);
+            } else if (buttonHBox.getChildren().contains(playAgainBjButton)) {
+                buttonHBox.getChildren().remove(playAgainBjButton);
+                buttonHBox.getChildren().addAll(enterBetField, submitBjBetButton);
+            }
+            enterBetField.setText("");
+            model.setScene(Scenes.HOME);
+        });
+
+        bjCreditLabel.setFont(basicFont);
+        bjCreditLabel.setAlignment(Pos.BOTTOM_CENTER);
+        HBox topHBox = new HBox(bjCreditLabel, gameBackButton);
+        topHBox.setAlignment(Pos.TOP_RIGHT);
+        topHBox.setSpacing(45);
+
+        StackPane deckPane = new StackPane(backCard, backCardStack);
+
+        VBox centerVBox = new VBox(dealerLabel, dealerHand, playerLabel, playerHand);
+        centerVBox.setAlignment(Pos.CENTER);
+        centerVBox.setSpacing(30);
+        centerVBox.setPadding(new Insets(20, 35, 20, 35));
+
+        VBox bottomVBox = new VBox(buttonHBox, blackjackAlertMessage);
+        bottomVBox.setAlignment(Pos.CENTER);
+        bottomVBox.setSpacing(30);
+        bottomVBox.setPadding(new Insets(20, 35, 20, 35));
+
+        BorderPane bPane = new BorderPane();
+        bPane.setTop(topHBox);
+        bPane.setCenter(centerVBox);
+        bPane.setRight(deckPane);
+        bPane.setBottom(bottomVBox);
+        bPane.setPadding(new Insets(20, 35, 20, 35));
+        return new Scene(bPane, 1200, 750);
     }
 
+    /**
+     * Method to animate cards being placed on the table
+     * @param imgV image view that is being replaced by the card
+     */
+    public void placeCard(ImageView imgV, ImageView backCard) {
+        Bounds startCoords = backCard.localToScene(backCard.getBoundsInLocal());
+        Bounds endCoords = imgV.localToScene(imgV.getBoundsInLocal());
+        System.out.println(startCoords.getMinX());
+        System.out.println(startCoords.getMinY());
+        System.out.println(startCoords);
+        System.out.println(endCoords);
+        TranslateTransition translate = new TranslateTransition();
+        translate.setNode(backCard);
 
-
+        translate.setDuration(Duration.millis(2000)); // TODO: Currently does not work. Not sure what I am going to do to fix
+        translate.setByX(endCoords.getMaxX()-startCoords.getMaxX());// todo: tried way too much. 5-6 hours went into this not working :(
+        translate.setByY(endCoords.getMinY()-startCoords.getMinY());
+        translate.play();
+    }
 
 
     /**
      * Method to create all playing cards from text file to use for card games
      */
-    void populateCards() {
+    public void populateCards() {
         String fileName = "data/playingCardsPNG.txt";
         File file = new File(fileName);
         ArrayList<PlayingCards> pcards = new ArrayList<>();
@@ -405,7 +532,10 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
 
             case STARTUP -> mainStage.setScene(startupScene);
 
-            case HOME -> mainStage.setScene(homeScene);
+            case HOME -> {
+                mainStage.setScene(homeScene);
+                loggedin = true;
+            }
 
             case BLACKJACK -> mainStage.setScene(blackjackScene);
 
@@ -430,7 +560,14 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                 case STARTUP -> startScreenLabel.setText(text);
 
                 case HOME -> homeLabel.setText(text);
+
+                case BLACKJACK -> blackjackAlertMessage.setText(text);
             }
+        }
+        // Set the credits to their proper value
+        if(loggedin) {
+            bjCreditLabel.setText("Credits: " + model.getActivePlayer().getChips());
+            homeCreditLabel.setText("Credits: " + model.getActivePlayer().getChips());
         }
     }
 }
