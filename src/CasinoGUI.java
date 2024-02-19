@@ -355,7 +355,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                     buttonHBox.getChildren().removeAll(enterBetField, submitBjBetButton);
                     buttonHBox.getChildren().addAll(hitButton, stayButton);
 
-                    ImageView dealer1 = new ImageView(new Image("file:" + model.hitBlackjack()));
+                    ImageView dealer1 = new ImageView(new Image("file:" + model.dealerHitBlackjack()));
                     dealer1.setFitHeight(175);
                     dealer1.setPreserveRatio(true);
                     dealerHand.getChildren().add(dealer1);
@@ -381,7 +381,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         });
 
         hitButton.setOnAction(event -> {
-            ImageView temp = new ImageView(new Image("file:" + model.hitBlackjack()));
+            ImageView temp = new ImageView(new Image("file:" + model.playerHitBlackjack()));
             temp.setFitHeight(175);
             temp.setPreserveRatio(true);
             playerHand.getChildren().add(temp);
