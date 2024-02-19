@@ -6,18 +6,19 @@ import java.util.*;
  * @author Travis Brown (Kwzii)
  */
 public class CasinoModel {
-    private final static String RESOURCES_DIR = "resources/PNG-cards/";
+    private final static String RESOURCES_DIR = "resources/";
     public static Player activePlayerAccount;
     AccountData accounts = new AccountData();
     Scenes currentScene;
     HashMap<String, Player> accountMap;
     private final List<Observer<CasinoModel, String>> observers = new LinkedList<>();
     private int currentBet = 0;
+    private Coin coin = new Coin();
     private ArrayList<PlayingCards> fullCardDeck = new ArrayList<>();
     private ArrayList<PlayingCards> currentDeck = new ArrayList<>();
     private ArrayList<PlayingCards> playerHand = new ArrayList<>();
     private ArrayList<PlayingCards> dealerHand = new ArrayList<>();
-    private final PlayingCards coveredCard = new PlayingCards(PlayingCards.Suit.BACK, PlayingCards.Face.NONFACE, 0, RESOURCES_DIR + "card_back.png");
+    private final PlayingCards coveredCard = new PlayingCards(PlayingCards.Suit.BACK, PlayingCards.Face.NONFACE, 0, RESOURCES_DIR + "PNG-cards/card_back.png");
 
     /**
      * Constructor for CasinoModel
@@ -85,6 +86,14 @@ public class CasinoModel {
             accountMap = accounts.readAccounts();
             login(usr, pass);
         }
+    }
+
+    /**
+     * Getter for coin for the coin flip game
+     * @return the coin model
+     */
+    public Coin getCoin() {
+        return coin;
     }
 
     /**

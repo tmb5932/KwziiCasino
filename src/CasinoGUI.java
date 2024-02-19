@@ -25,8 +25,10 @@ import java.util.ArrayList;
  * @author Travis Brown (Kwzii)
  */
 public class CasinoGUI extends Application implements Observer<CasinoModel, String> {
+    public static final Font basicFont = new Font("Ariel", 19);
+    public static final Font largeFont = new Font("Ariel", 24);
     private CasinoModel model;
-    private final static String RESOURCES_DIR = "resources/PNG-cards/";
+    private final static String RESOURCES_DIR = "resources/";
     private boolean loggedin;
     private final Label startScreenLabel = new Label("Please Sign Up or Login");
     private final Label homeLabel = new Label("Choose a game :)");
@@ -35,8 +37,8 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     private final Label bjCreditLabel = new Label("Credits: " + 0);
     private final Label homeCreditLabel = new Label("Credits: " + 0);
     private final Label blackjackAlertMessage = new Label("");
-    private final Font basicFont = new Font("Ariel", 19);
-    private final Font largeFont = new Font("Ariel", 24);
+    private final Label coinCreditLabel = new Label("Credits: " + 0);
+    private final Label coinAlertLabel = new Label("");
     private int numPlayerCards = 0;
     private int numDealerCards = 0;
     private final double cardWidth = 120.5;
@@ -75,18 +77,15 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     public void start(Stage stage) {
         createMainStage(stage);
         blackjackScene = blackjack();
+        coinflipScene = createCoinScene();
         /*
         try {
-            Parent blackjack = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("BlackJack.fxml")));
-            blackjackScene = new Scene(blackjack);
             Parent roulette = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
             rouletteScene = new Scene(roulette);
             Parent poker = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
             pokerScene = new Scene(poker);
             Parent slots = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
             slotsScene = new Scene(slots);
-            Parent coinFlip = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
-            coinflipScene = new Scene(coinFlip);
             Parent horseRace = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
             horsebetScene = new Scene(horseRace);
 
@@ -242,6 +241,8 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         coinFlipButton.setMinSize(150, 100);
         coinFlipButton.setFont(basicFont);
         coinFlipButton.setAlignment(Pos.CENTER);
+        coinFlipButton.setOnAction(event -> model.setScene(Scenes.COINFLIP));
+
 
         Button horsesButton = new Button("Horse Betting");
         horsesButton.setMinSize(150, 100);
@@ -583,6 +584,102 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         return fadeBack;
     }
 
+    public Scene createCoinScene() {
+        coinAlertLabel.setFont(basicFont);
+        coinAlertLabel.setAlignment(Pos.CENTER);
+
+        TextField betField = new TextField();
+        betField.setPromptText("Enter bet");
+        betField.setAlignment(Pos.CENTER);
+        betField.setFont(new Font(15));
+
+        Button betHeadsButton = new Button("Bet Heads");
+        betHeadsButton.setMinSize(200, 125);
+        betHeadsButton.setFont(basicFont);
+        betHeadsButton.setAlignment(Pos.CENTER);
+        betHeadsButton.setTextAlignment(TextAlignment.CENTER);
+        betHeadsButton.setFocusTraversable(false);
+
+        Button betTailsButton = new Button("Bet Tails");
+        betTailsButton.setMinSize(200, 125);
+        betTailsButton.setFont(basicFont);
+        betTailsButton.setAlignment(Pos.CENTER);
+        betTailsButton.setTextAlignment(TextAlignment.CENTER);
+        betTailsButton.setFocusTraversable(false);
+
+        Button coinBackButton = new Button("Back");
+        coinBackButton.setMinSize(125, 60);
+        coinBackButton.setFont(basicFont);
+        coinBackButton.setAlignment(Pos.CENTER);
+        coinBackButton.setTextAlignment(TextAlignment.CENTER);
+
+        coinCreditLabel.setFont(basicFont);
+        HBox topHBox = new HBox(coinCreditLabel, coinBackButton);
+        topHBox.setAlignment(Pos.TOP_RIGHT);
+        topHBox.setSpacing(45);
+
+
+        ImageView coinHeadImV = new ImageView(new Image("file:" + RESOURCES_DIR + model.getCoin().getCurrentHead()));
+        coinHeadImV.setFitHeight(250);
+        coinHeadImV.setPreserveRatio(true);
+
+        ImageView coinTailImV = new ImageView(new Image("file:" + RESOURCES_DIR + model.getCoin().getCurrentTail()));
+        coinTailImV.setFitHeight(250);
+        coinTailImV.setPreserveRatio(true);
+
+        HBox buttonsHBox = new HBox(betHeadsButton, betTailsButton);
+        buttonsHBox.setSpacing(25);
+        buttonsHBox.setAlignment(Pos.CENTER);
+
+        VBox removableVBox = new VBox(betField, buttonsHBox);
+        removableVBox.setAlignment(Pos.CENTER);
+        removableVBox.setPadding(new Insets(15));
+        removableVBox.setSpacing(10);
+        betHeadsButton.setOnAction(event -> {
+            if (!betField.getText().isEmpty()) {
+                try {
+                    if (model.placeBet(Integer.parseInt(betField.getText())) != 1) {
+                        model.getCoin().setCurrentBet(Coin.CoinSide.HEADS);
+                        removableVBox.getChildren().clear();
+                    }
+                } catch (NumberFormatException nfe) {
+                    model.updateModel("Please enter a number");
+                }
+            } else {
+                model.updateModel("You have not entered a bet");
+            }
+        });  // TODO create animation for coin flip (coin just going crazy) and also set up win conditions and shiz
+
+        betTailsButton.setOnAction(event -> {
+            if (!betField.getText().isEmpty()) {
+                try {
+                    if (model.placeBet(Integer.parseInt(betField.getText())) != 1) {
+                        model.getCoin().setCurrentBet(Coin.CoinSide.TAILS);
+                        removableVBox.getChildren().clear();
+                    }
+                } catch (NumberFormatException nfe) {
+                    model.updateModel("Please enter a number");
+                }
+            } else {
+                model.updateModel("You have not entered a bet");
+            }
+        });
+
+        coinBackButton.setOnAction(e ->{
+            removableVBox.getChildren().clear();
+            removableVBox.getChildren().addAll(betField, buttonsHBox);
+            betField.setText("");
+            coinAlertLabel.setText("");
+            model.setScene(Scenes.HOME);
+        });
+
+        VBox mainVBox = new VBox(topHBox, coinHeadImV, coinAlertLabel, removableVBox);
+        mainVBox.setSpacing(10);
+        mainVBox.setPadding(new Insets(15));
+        mainVBox.setAlignment(Pos.CENTER);
+        return new Scene(mainVBox, 800, 600);
+    }
+
     /**
      * Method to create all playing cards from text file to use for card games
      */
@@ -620,7 +717,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                     case "diamonds.png" -> suitVal = PlayingCards.Suit.DIAMONDS;
                     case "clubs.png" -> suitVal = PlayingCards.Suit.CLUBS;
                 }
-                PlayingCards card = new PlayingCards(suitVal, face, val, RESOURCES_DIR + line);
+                PlayingCards card = new PlayingCards(suitVal, face, val, RESOURCES_DIR + "PNG-cards/" + line);
                 pcards.add(card);
             }
         } catch (IOException e) {
@@ -685,12 +782,15 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                 case HOME -> homeLabel.setText(text);
 
                 case BLACKJACK -> blackjackAlertMessage.setText(text);
+
+                case COINFLIP -> coinAlertLabel.setText(text);
             }
         }
         // Set the credits to their proper value
         if(loggedin) {
             bjCreditLabel.setText("Credits: " + model.getActivePlayer().getChips());
             homeCreditLabel.setText("Credits: " + model.getActivePlayer().getChips());
+            coinCreditLabel.setText("Credits: " + model.getActivePlayer().getChips());
         }
     }
 }
