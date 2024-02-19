@@ -1,3 +1,5 @@
+import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.geometry.*;
@@ -35,6 +37,9 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     private Label blackjackAlertMessage = new Label("");
     private final Font basicFont = new Font("Ariel", 19);
     private final Font largeFont = new Font("Ariel", 24);
+    private int numPlayerCards = 0;
+    private int numDealerCards = 0;
+    private double cardWidth = 120.5;
     private Stage mainStage;
     private Scene startupScene;
     private Scene loginScene;
@@ -298,11 +303,11 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         blackjackAlertMessage.setFont(basicFont);
 
         HBox playerHand = new HBox();
-        playerHand.setAlignment(Pos.CENTER);
+//        playerHand.setAlignment(Pos.CENTER);  // TODO animations do not work if HBox's are centered :(
         playerHand.setMinHeight(175);
 
         HBox dealerHand = new HBox();
-        dealerHand.setAlignment(Pos.CENTER);
+//        dealerHand.setAlignment(Pos.CENTER);  // TODO. figure something out about this. it looks bad not centered
         dealerHand.setMinHeight(175);
 
         Button hitButton = new Button("HIT");
@@ -356,16 +361,17 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                     buttonHBox.getChildren().addAll(hitButton, stayButton);
 
                     ImageView dealer1 = new ImageView(new Image("file:" + model.dealerHitBlackjack()));
-                    dealer1.setFitHeight(175);
+                    dealer1.setFitWidth(cardWidth);
                     dealer1.setPreserveRatio(true);
                     dealerHand.getChildren().add(dealer1);
-                    placeCard(dealer1, backCard);
+                    dealer1.setVisible(false);
 
                     ImageView dealer2 = new ImageView(new Image("file:" + model.getBackCard()));
                     dealer2.setFitHeight(175);
                     dealer2.setPreserveRatio(true);
                     dealerHand.getChildren().add(dealer2);
-                    placeCard(dealer2, backCard);
+                    dealer2.setVisible(false);
+                    dealersStartingCards(dealer1, dealer2, backCard);
 
                 } catch (NumberFormatException nfe) {
                     model.updateModel("Please enter a number");
@@ -379,14 +385,14 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             buttonHBox.getChildren().remove(playAgainBjButton);
             buttonHBox.getChildren().addAll(enterBetField, submitBjBetButton);
         });
-
         hitButton.setOnAction(event -> {
             ImageView temp = new ImageView(new Image("file:" + model.playerHitBlackjack()));
-            temp.setFitHeight(175);
+            temp.setFitWidth(cardWidth);
             temp.setPreserveRatio(true);
             playerHand.getChildren().add(temp);
-            placeCard(temp, backCard);
-            if (model.checkBjWin() == GameResults.WIN) {
+            temp.setVisible(false);
+            placeCard(temp, backCard, 'P');
+            if (model.checkBjWin() != GameResults.NONE) {
                 buttonHBox.getChildren().removeAll(hitButton, stayButton);
                 buttonHBox.getChildren().addAll(playAgainBjButton);
             }
@@ -401,6 +407,8 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             model.resetCardDeck();
             playerHand.getChildren().clear();
             dealerHand.getChildren().clear();
+            numPlayerCards = 0;
+            numDealerCards = 0;
             if(buttonHBox.getChildren().contains(hitButton)) {
                 buttonHBox.getChildren().removeAll(hitButton, stayButton);
                 buttonHBox.getChildren().addAll(enterBetField, submitBjBetButton);
@@ -443,22 +451,157 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
      * Method to animate cards being placed on the table
      * @param imgV image view that is being replaced by the card
      */
-    public void placeCard(ImageView imgV, ImageView backCard) {
+    public void placeCard(ImageView imgV, ImageView backCard, char who) {
         Bounds startCoords = backCard.localToScene(backCard.getBoundsInLocal());
         Bounds endCoords = imgV.localToScene(imgV.getBoundsInLocal());
-        System.out.println(startCoords.getMinX());
-        System.out.println(startCoords.getMinY());
-        System.out.println(startCoords);
-        System.out.println(endCoords);
         TranslateTransition translate = new TranslateTransition();
         translate.setNode(backCard);
 
-        translate.setDuration(Duration.millis(2000)); // TODO: Currently does not work. Not sure what I am going to do to fix
-        translate.setByX(endCoords.getMaxX()-startCoords.getMaxX());// todo: tried way too much. 5-6 hours went into this not working :(
-        translate.setByY(endCoords.getMinY()-startCoords.getMinY());
+        if (who == 'D') {
+            double xDist = (endCoords.getMaxX() + (cardWidth * numDealerCards)) - startCoords.getMaxX();
+            translate.setDuration(Duration.millis(-xDist*1.75));
+            translate.setByX(xDist);
+            numDealerCards++;
+        }
+        else if (who == 'P'){
+            double xDist = ((endCoords.getMaxX() + (cardWidth * numPlayerCards)) - startCoords.getMaxX());
+            translate.setDuration(Duration.millis(-xDist*1.75));
+            translate.setByX(xDist);
+            numPlayerCards++;
+        }
+        translate.setByY(endCoords.getMinY() - startCoords.getMinY());
         translate.play();
+
+        FadeTransition fade = new FadeTransition();
+        fade.setNode(backCard);
+        fade.setDuration(Duration.millis(700));
+        fade.setInterpolator(Interpolator.LINEAR);
+        fade.setFromValue(1);
+        fade.setToValue(0);
+
+        translate.setOnFinished(event -> {
+            imgV.setVisible(true);
+            fade.play();
+        });
+        FadeTransition fadeBack = new FadeTransition();
+        fadeBack.setNode(backCard);
+        fadeBack.setDuration(Duration.millis(1));
+        fadeBack.setInterpolator(Interpolator.LINEAR);
+        fadeBack.setFromValue(0);
+        fadeBack.setToValue(1);
+
+        TranslateTransition transitionBack = new TranslateTransition();
+        transitionBack.setNode(backCard);
+
+        transitionBack.setDuration(Duration.millis(10));
+        if (who == 'D') {
+            transitionBack.setByX((startCoords.getMaxX() - cardWidth*(numDealerCards-1)) - (endCoords.getMaxX()));
+        }
+        else if (who == 'P'){
+            transitionBack.setByX((startCoords.getMaxX() - cardWidth*(numPlayerCards-1)) - (endCoords.getMaxX()));
+        }
+        transitionBack.setByY(startCoords.getMinY() - endCoords.getMinY());
+
+        fade.setOnFinished(event -> transitionBack.play());
+        transitionBack.setOnFinished(event -> fadeBack.play());
     }
 
+
+    /**
+     * Method to animate the initial 2 dealer cards being placed on the table
+     * Method needed to stop glitches in the animation process
+     * @param imgV image view of the 1st ard the dealer starts with
+     * @param imgV2 image view of the 2nd card the dealer starts with
+     * @param backCard the image view of the back card that is being the "deck of cards" we are pulling from
+     */
+    public void dealersStartingCards(ImageView imgV, ImageView imgV2, ImageView backCard) {
+        Bounds startCoords = backCard.localToScene(backCard.getBoundsInLocal());
+        Bounds endCoords = imgV.localToScene(imgV.getBoundsInLocal());
+        TranslateTransition translate1 = new TranslateTransition();
+        translate1.setNode(backCard);
+
+        double xDist = (endCoords.getMaxX() + (cardWidth * numDealerCards)) - startCoords.getMaxX();
+        translate1.setDuration(Duration.millis(-xDist*1.75));
+        translate1.setByX(xDist);
+        numDealerCards++;
+        translate1.setByY(endCoords.getMinY() - startCoords.getMinY());
+        translate1.play();
+
+        FadeTransition fade1 = new FadeTransition();
+        fade1.setNode(backCard);
+        fade1.setDuration(Duration.millis(700));
+        fade1.setInterpolator(Interpolator.LINEAR);
+        fade1.setFromValue(1);
+        fade1.setToValue(0);
+
+        translate1.setOnFinished(event -> {
+            imgV.setVisible(true);
+            fade1.play();
+        });
+
+        FadeTransition fadeBack1 = new FadeTransition();
+        fadeBack1.setNode(backCard);
+        fadeBack1.setDuration(Duration.millis(1));
+        fadeBack1.setInterpolator(Interpolator.LINEAR);
+        fadeBack1.setFromValue(0);
+        fadeBack1.setToValue(1);
+
+        TranslateTransition transitionBack1 = new TranslateTransition();
+        transitionBack1.setNode(backCard);
+
+        transitionBack1.setDuration(Duration.millis(10));
+        transitionBack1.setByX((startCoords.getMaxX() - cardWidth*(numDealerCards-1)) - (endCoords.getMaxX()));
+
+        transitionBack1.setByY(startCoords.getMinY() - endCoords.getMinY());
+
+        fade1.setOnFinished(event -> transitionBack1.play());
+        transitionBack1.setOnFinished(event -> fadeBack1.play());
+
+        Bounds startCoords2 = backCard.localToScene(backCard.getBoundsInLocal());
+        Bounds endCoords2 = imgV2.localToScene(imgV2.getBoundsInLocal());
+
+
+        TranslateTransition translate2 = new TranslateTransition();
+        translate2.setNode(backCard);
+
+        double xDist2 = (endCoords2.getMaxX() + (cardWidth * numDealerCards)) - startCoords2.getMaxX();
+        translate2.setDuration(Duration.millis(-xDist2*1.75));
+        translate2.setByX(xDist2);
+        numDealerCards++;
+        translate2.setByY(endCoords2.getMinY() - startCoords2.getMinY());
+
+        FadeTransition fade2 = new FadeTransition();
+        fade2.setNode(backCard);
+        fade2.setDuration(Duration.millis(1000));
+        fade2.setInterpolator(Interpolator.LINEAR);
+        fade2.setFromValue(1);
+        fade2.setToValue(0);
+
+        translate2.setOnFinished(event -> {
+            imgV2.setVisible(true);
+            fade2.play();
+        });
+
+        FadeTransition fadeBack2 = new FadeTransition();
+        fadeBack2.setNode(backCard);
+        fadeBack2.setDuration(Duration.millis(1));
+        fadeBack2.setInterpolator(Interpolator.LINEAR);
+        fadeBack2.setFromValue(0);
+        fadeBack2.setToValue(1);
+
+        TranslateTransition transitionBack2 = new TranslateTransition();
+        transitionBack2.setNode(backCard);
+
+        transitionBack2.setDuration(Duration.millis(10));
+        transitionBack2.setByX((startCoords2.getMaxX() - cardWidth*(numDealerCards-1)) - (endCoords2.getMaxX()));
+
+        transitionBack2.setByY(startCoords2.getMinY() - endCoords2.getMinY());
+
+        fade2.setOnFinished(event -> transitionBack2.play());
+        transitionBack2.setOnFinished(event -> fadeBack2.play());
+
+        fadeBack1.setOnFinished(event -> translate2.play());
+    }
 
     /**
      * Method to create all playing cards from text file to use for card games
