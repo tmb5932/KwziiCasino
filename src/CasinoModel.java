@@ -114,20 +114,37 @@ public class CasinoModel {
     }
 
     /**
-     * Getter for the total of the hand of whichever person is given in param
+     * Getter for the total of the hand of whichever person is given in param. Calls helper function
      * @param person Whether the call wants the dealers hand total or the players hand total 'D' or 'P'
      * @return int value of the hand
      */
     public int bjGetHandTotal(char person){
         int result = 0;
         if (person == 'D')
-        {
-            for (PlayingCards p : dealerHand) {
-                result += p.getValue();
-            }
-        } else if (person == 'P'){
-            for (PlayingCards p : playerHand) {
-                result += p.getValue();
+            result = getBjValue(result, dealerHand);
+         else if (person == 'P')
+             result = getBjValue(result, playerHand);
+
+        return result;
+    }
+
+    /**
+     * Counts the value of the given hand, and if it contains an ace and is above 21, turns the 11 into a 1
+     * @param result the total hand value
+     * @param hand the hand that is being added
+     * @return the total value of the hand
+     */
+    private int getBjValue(int result, ArrayList<PlayingCards> hand) {
+        for (PlayingCards p : hand) {
+            result += p.getValue();
+        }
+        if (result > 21) {
+            for (PlayingCards p : hand) {
+                if (p.getFace() == PlayingCards.Face.ACE) {
+                    result -= 10;
+                    if (result <= 21)
+                        break;
+                }
             }
         }
         return result;
