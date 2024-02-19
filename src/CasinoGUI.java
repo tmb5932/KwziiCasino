@@ -32,9 +32,9 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     private final Label homeLabel = new Label("Choose a game :)");
     private final Label loginMessage = new Label("Login");
     private final Label signupMessage = new Label("Sign up");
-    private Label bjCreditLabel = new Label("Credits: " + 0);
-    private Label homeCreditLabel = new Label("Credits: " + 0);
-    private Label blackjackAlertMessage = new Label("");
+    private final Label bjCreditLabel = new Label("Credits: " + 0);
+    private final Label homeCreditLabel = new Label("Credits: " + 0);
+    private final Label blackjackAlertMessage = new Label("");
     private final Font basicFont = new Font("Ariel", 19);
     private final Font largeFont = new Font("Ariel", 24);
     private int numPlayerCards = 0;
@@ -358,7 +358,6 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                     model.placeBet(Integer.parseInt(enterBetField.getText()));
                     blackjackAlertMessage.setText("");
                     buttonHBox.getChildren().removeAll(enterBetField, submitBjBetButton);
-                    buttonHBox.getChildren().addAll(hitButton, stayButton);
 
                     ImageView dealer1 = new ImageView(new Image("file:" + model.dealerHitBlackjack()));
                     dealer1.setFitWidth(cardWidth);
@@ -371,8 +370,23 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                     dealer2.setPreserveRatio(true);
                     dealerHand.getChildren().add(dealer2);
                     dealer2.setVisible(false);
-                    dealersStartingCards(dealer1, dealer2, backCard);
 
+                    ImageView player1 = new ImageView(new Image("file:" + model.playerHitBlackjack()));
+                    player1.setFitWidth(cardWidth);
+                    player1.setPreserveRatio(true);
+                    playerHand.getChildren().add(player1);
+                    player1.setVisible(false);
+
+                    ImageView player2 = new ImageView(new Image("file:" + model.playerHitBlackjack()));
+                    player2.setFitWidth(cardWidth);
+                    player2.setPreserveRatio(true);
+                    playerHand.getChildren().add(player2);
+                    player2.setVisible(false);
+
+                    FadeTransition finalTrans = dealStartingCards(dealer1, dealer2, player1, player2, backCard);
+                    finalTrans.setOnFinished(event -> {
+                        buttonHBox.getChildren().addAll(hitButton, stayButton);
+                    });
                 } catch (NumberFormatException nfe) {
                     model.updateModel("Please enter a number");
                 }
@@ -384,6 +398,12 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         playAgainBjButton.setOnAction(e -> {
             buttonHBox.getChildren().remove(playAgainBjButton);
             buttonHBox.getChildren().addAll(enterBetField, submitBjBetButton);
+            model.resetCardDeck();
+            playerHand.getChildren().clear();
+            dealerHand.getChildren().clear();
+            numPlayerCards = 0;
+            numDealerCards = 0;
+            enterBetField.setText("");
         });
         hitButton.setOnAction(event -> {
             ImageView temp = new ImageView(new Image("file:" + model.playerHitBlackjack()));
@@ -392,9 +412,15 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             playerHand.getChildren().add(temp);
             temp.setVisible(false);
             placeCard(temp, backCard, 'P');
-            if (model.checkBjWin() != GameResults.NONE) {
+            if (model.midCheckBjWin() != GameResults.NONE) {
                 buttonHBox.getChildren().removeAll(hitButton, stayButton);
                 buttonHBox.getChildren().addAll(playAgainBjButton);
+            }
+        });
+
+        stayButton.setOnAction(event -> {
+            if (model.finalCheckBjWin() == GameResults.WIN) {
+
             }
         });
 
@@ -433,7 +459,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         centerVBox.setSpacing(30);
         centerVBox.setPadding(new Insets(20, 35, 20, 35));
 
-        VBox bottomVBox = new VBox(buttonHBox, blackjackAlertMessage);
+        VBox bottomVBox = new VBox(blackjackAlertMessage, buttonHBox);
         bottomVBox.setAlignment(Pos.CENTER);
         bottomVBox.setSpacing(30);
         bottomVBox.setPadding(new Insets(20, 35, 20, 35));
@@ -444,7 +470,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         bPane.setRight(deckPane);
         bPane.setBottom(bottomVBox);
         bPane.setPadding(new Insets(20, 35, 20, 35));
-        return new Scene(bPane, 1200, 750);
+        return new Scene(bPane, 1200, 800);
     }
 
     /**
@@ -508,20 +534,22 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
 
 
     /**
-     * Method to animate the initial 2 dealer cards being placed on the table
-     * Method needed to stop glitches in the animation process
-     * @param imgV image view of the 1st ard the dealer starts with
-     * @param imgV2 image view of the 2nd card the dealer starts with
+     * Method to animate the initial 4 cards being placed on the table
+     * Special method needed to stop glitches in the animation process
+     * @param imgD1 image view of the 1st card the dealer starts with
+     * @param imgD2 image view of the 2nd card the dealer starts with
+     * @param imgP1 image view of the 1st card the player starts with
+     * @param imgP2 image view of the 2nd card the player starts with
      * @param backCard the image view of the back card that is being the "deck of cards" we are pulling from
      */
-    public void dealersStartingCards(ImageView imgV, ImageView imgV2, ImageView backCard) {
+    public FadeTransition dealStartingCards(ImageView imgD1, ImageView imgD2, ImageView imgP1, ImageView imgP2, ImageView backCard) {
         Bounds startCoords = backCard.localToScene(backCard.getBoundsInLocal());
-        Bounds endCoords = imgV.localToScene(imgV.getBoundsInLocal());
+        Bounds endCoords = imgD1.localToScene(imgD1.getBoundsInLocal());
         TranslateTransition translate1 = new TranslateTransition();
         translate1.setNode(backCard);
 
         double xDist = (endCoords.getMaxX() + (cardWidth * numDealerCards)) - startCoords.getMaxX();
-        translate1.setDuration(Duration.millis(-xDist*1.75));
+        translate1.setDuration(Duration.millis(-xDist * 1.75));
         translate1.setByX(xDist);
         numDealerCards++;
         translate1.setByY(endCoords.getMinY() - startCoords.getMinY());
@@ -535,7 +563,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         fade1.setToValue(0);
 
         translate1.setOnFinished(event -> {
-            imgV.setVisible(true);
+            imgD1.setVisible(true);
             fade1.play();
         });
 
@@ -558,16 +586,17 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         transitionBack1.setOnFinished(event -> fadeBack1.play());
 
         Bounds startCoords2 = backCard.localToScene(backCard.getBoundsInLocal());
-        Bounds endCoords2 = imgV2.localToScene(imgV2.getBoundsInLocal());
+        Bounds endCoords2 = imgD2.localToScene(imgD2.getBoundsInLocal());
 
 
         TranslateTransition translate2 = new TranslateTransition();
         translate2.setNode(backCard);
 
         double xDist2 = (endCoords2.getMaxX() + (cardWidth * numDealerCards)) - startCoords2.getMaxX();
-        translate2.setDuration(Duration.millis(-xDist2*1.75));
+        translate2.setDuration(Duration.millis(-xDist2 * 1.75));
         translate2.setByX(xDist2);
         numDealerCards++;
+
         translate2.setByY(endCoords2.getMinY() - startCoords2.getMinY());
 
         FadeTransition fade2 = new FadeTransition();
@@ -578,7 +607,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         fade2.setToValue(0);
 
         translate2.setOnFinished(event -> {
-            imgV2.setVisible(true);
+            imgD2.setVisible(true);
             fade2.play();
         });
 
@@ -593,6 +622,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         transitionBack2.setNode(backCard);
 
         transitionBack2.setDuration(Duration.millis(10));
+
         transitionBack2.setByX((startCoords2.getMaxX() - cardWidth*(numDealerCards-1)) - (endCoords2.getMaxX()));
 
         transitionBack2.setByY(startCoords2.getMinY() - endCoords2.getMinY());
@@ -601,6 +631,97 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         transitionBack2.setOnFinished(event -> fadeBack2.play());
 
         fadeBack1.setOnFinished(event -> translate2.play());
+
+
+        Bounds startCoords3 = backCard.localToScene(backCard.getBoundsInLocal());
+        Bounds endCoords3 = imgP1.localToScene(imgP1.getBoundsInLocal());
+        TranslateTransition translate3 = new TranslateTransition();
+        translate3.setNode(backCard);
+
+        double xDist3 = (endCoords3.getMaxX() + (cardWidth * numPlayerCards)) - startCoords3.getMaxX();
+        translate3.setDuration(Duration.millis(-xDist3 * 1.75));
+        translate3.setByX(xDist3);
+        numPlayerCards++;
+        translate3.setByY(endCoords3.getMinY() - startCoords3.getMinY());
+
+        FadeTransition fade3 = new FadeTransition();
+        fade3.setNode(backCard);
+        fade3.setDuration(Duration.millis(700));
+        fade3.setInterpolator(Interpolator.LINEAR);
+        fade3.setFromValue(1);
+        fade3.setToValue(0);
+
+        translate3.setOnFinished(event -> {
+            imgP1.setVisible(true);
+            fade3.play();
+        });
+
+        FadeTransition fadeBack3 = new FadeTransition();
+        fadeBack3.setNode(backCard);
+        fadeBack3.setDuration(Duration.millis(1));
+        fadeBack3.setInterpolator(Interpolator.LINEAR);
+        fadeBack3.setFromValue(0);
+        fadeBack3.setToValue(1);
+
+        TranslateTransition transitionBack3 = new TranslateTransition();
+        transitionBack3.setNode(backCard);
+
+        transitionBack3.setDuration(Duration.millis(10));
+        transitionBack3.setByX((startCoords3.getMaxX() - cardWidth*(numPlayerCards-1)) - (endCoords3.getMaxX()));
+
+        transitionBack3.setByY(startCoords3.getMinY() - endCoords3.getMinY());
+
+        fade3.setOnFinished(event -> transitionBack3.play());
+        transitionBack3.setOnFinished(event -> fadeBack3.play());
+
+        Bounds startCoords4 = backCard.localToScene(backCard.getBoundsInLocal());
+        Bounds endCoords4 = imgP2.localToScene(imgP2.getBoundsInLocal());
+
+
+        TranslateTransition translate4 = new TranslateTransition();
+        translate4.setNode(backCard);
+
+        double xDist4 = (endCoords4.getMaxX() + (cardWidth * numPlayerCards)) - startCoords4.getMaxX();
+        translate4.setDuration(Duration.millis(-xDist4 * 1.75));
+        translate4.setByX(xDist4);
+        numPlayerCards++;
+
+        translate4.setByY(endCoords4.getMinY() - startCoords4.getMinY());
+
+        FadeTransition fade4 = new FadeTransition();
+        fade4.setNode(backCard);
+        fade4.setDuration(Duration.millis(1000));
+        fade4.setInterpolator(Interpolator.LINEAR);
+        fade4.setFromValue(1);
+        fade4.setToValue(0);
+
+        translate4.setOnFinished(event -> {
+            imgP2.setVisible(true);
+            fade4.play();
+        });
+
+        FadeTransition fadeBack4 = new FadeTransition();
+        fadeBack4.setNode(backCard);
+        fadeBack4.setDuration(Duration.millis(1));
+        fadeBack4.setInterpolator(Interpolator.LINEAR);
+        fadeBack4.setFromValue(0);
+        fadeBack4.setToValue(1);
+        TranslateTransition transitionBack4 = new TranslateTransition();
+        transitionBack4.setNode(backCard);
+
+        transitionBack4.setDuration(Duration.millis(10));
+
+        transitionBack4.setByX((startCoords4.getMaxX() - cardWidth*(numPlayerCards-1)) - (endCoords4.getMaxX()));
+
+        transitionBack4.setByY(startCoords4.getMinY() - endCoords4.getMinY());
+
+        fade4.setOnFinished(event -> transitionBack4.play());
+        transitionBack4.setOnFinished(event -> fadeBack4.play());
+
+        fadeBack3.setOnFinished(event -> translate4.play());
+        fadeBack2.setOnFinished(event -> translate3.play());
+
+        return fadeBack4;
     }
 
     /**
