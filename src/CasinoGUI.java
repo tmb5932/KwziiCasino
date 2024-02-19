@@ -346,8 +346,6 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         backCardStack.setFitHeight(175);
         backCardStack.setPreserveRatio(true);
 
-        // TODO On submit, have it place 1 face up and 1 facedown card for dealer, and 2 for player.
-        //  And maybe try and add the deck top right
         HBox buttonHBox = new HBox(enterBetField, submitBjBetButton);
         buttonHBox.setAlignment(Pos.CENTER);
         buttonHBox.setSpacing(10);
@@ -355,38 +353,55 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         submitBjBetButton.setOnAction(e -> {
             if (!enterBetField.getText().isEmpty()) {
                 try {
-                    model.placeBet(Integer.parseInt(enterBetField.getText()));
-                    blackjackAlertMessage.setText("");
-                    buttonHBox.getChildren().removeAll(enterBetField, submitBjBetButton);
+                    if (model.placeBet(Integer.parseInt(enterBetField.getText())) == 0) {
+                        blackjackAlertMessage.setText("");
+                        buttonHBox.getChildren().removeAll(enterBetField, submitBjBetButton);
 
-                    ImageView dealer1 = new ImageView(new Image("file:" + model.dealerHitBlackjack()));
-                    dealer1.setFitWidth(cardWidth);
-                    dealer1.setPreserveRatio(true);
-                    dealerHand.getChildren().add(dealer1);
-                    dealer1.setVisible(false);
+                        ImageView dealer1 = new ImageView(new Image("file:" + model.dealerHitBlackjack()));
+                        dealer1.setFitWidth(cardWidth);
+                        dealer1.setPreserveRatio(true);
+                        dealerHand.getChildren().add(dealer1);
+                        dealer1.setVisible(false);
 
-                    ImageView dealer2 = new ImageView(new Image("file:" + model.getBackCard()));
-                    dealer2.setFitHeight(175);
-                    dealer2.setPreserveRatio(true);
-                    dealerHand.getChildren().add(dealer2);
-                    dealer2.setVisible(false);
+                        ImageView dealer2 = new ImageView(new Image("file:" + model.getBackCard()));
+                        dealer2.setFitHeight(175);
+                        dealer2.setPreserveRatio(true);
+                        dealerHand.getChildren().add(dealer2);
+                        dealer2.setVisible(false);
 
-                    ImageView player1 = new ImageView(new Image("file:" + model.playerHitBlackjack()));
-                    player1.setFitWidth(cardWidth);
-                    player1.setPreserveRatio(true);
-                    playerHand.getChildren().add(player1);
-                    player1.setVisible(false);
+                        ImageView player1 = new ImageView(new Image("file:" + model.playerHitBlackjack()));
+                        player1.setFitWidth(cardWidth);
+                        player1.setPreserveRatio(true);
+                        playerHand.getChildren().add(player1);
+                        player1.setVisible(false);
 
-                    ImageView player2 = new ImageView(new Image("file:" + model.playerHitBlackjack()));
-                    player2.setFitWidth(cardWidth);
-                    player2.setPreserveRatio(true);
-                    playerHand.getChildren().add(player2);
-                    player2.setVisible(false);
+                        ImageView player2 = new ImageView(new Image("file:" + model.playerHitBlackjack()));
+                        player2.setFitWidth(cardWidth);
+                        player2.setPreserveRatio(true);
+                        playerHand.getChildren().add(player2);
+                        player2.setVisible(false);
 
-                    FadeTransition finalTrans = dealStartingCards(dealer1, dealer2, player1, player2, backCard);
-                    finalTrans.setOnFinished(event -> {
-                        buttonHBox.getChildren().addAll(hitButton, stayButton);
-                    });
+//                        FadeTransition fd = placeCard(dealer1, backCard, 'D');
+//                        fd.setOnFinished(event -> {
+//                            FadeTransition fd1 = placeCard(dealer2, backCard, 'D');
+//                            fd1.setOnFinished(event1 -> {
+//                                FadeTransition fd2 = placeCard(player1, backCard, 'P');
+//                                fd2.setOnFinished(event2 -> {
+//                                    FadeTransition fd3 = placeCard(player2, backCard, 'P');
+//                                });
+//                            });
+//                        });
+
+
+                        FadeTransition finalTrans = dealStartingCards(dealer1, dealer2, player1, player2, backCard);
+                        finalTrans.setOnFinished(event -> {
+                            buttonHBox.getChildren().addAll(hitButton, stayButton);
+                            if (model.initialCheckBjWin() == GameResults.WIN) {
+                                buttonHBox.getChildren().removeAll(hitButton, stayButton);
+                                buttonHBox.getChildren().addAll(playAgainBjButton);
+                            }
+                        });
+                    }
                 } catch (NumberFormatException nfe) {
                     model.updateModel("Please enter a number");
                 }
@@ -413,15 +428,37 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             temp.setVisible(false);
             placeCard(temp, backCard, 'P');
             if (model.midCheckBjWin() != GameResults.NONE) {
+                dealerHand.getChildren().remove(1);
+                numDealerCards--;
+                ImageView dealer1 = new ImageView(new Image("file:" + model.dealerHitBlackjack()));
+                dealer1.setFitWidth(cardWidth);
+                dealer1.setPreserveRatio(true);
+                dealerHand.getChildren().add(dealer1);
                 buttonHBox.getChildren().removeAll(hitButton, stayButton);
                 buttonHBox.getChildren().addAll(playAgainBjButton);
             }
         });
 
         stayButton.setOnAction(event -> {
-            if (model.finalCheckBjWin() == GameResults.WIN) {
-
+            dealerHand.getChildren().remove(1);
+            numDealerCards--;
+            ImageView dealer1 = new ImageView(new Image("file:" + model.dealerHitBlackjack()));
+            dealer1.setFitWidth(cardWidth);
+            dealer1.setPreserveRatio(true);
+            dealerHand.getChildren().add(dealer1);
+//            dealer1.setVisible(false);
+//            placeCard(dealer1, backCard, 'D');
+            while (model.bjGetHandTotal('D') < 17) {
+                ImageView temp = new ImageView(new Image("file:" + model.dealerHitBlackjack()));
+                temp.setFitWidth(cardWidth);
+                temp.setPreserveRatio(true);
+                dealerHand.getChildren().add(temp);
+//                temp.setVisible(false);
+//                placeCard(temp, backCard, 'D');
             }
+            model.finalCheckBjWin();
+            buttonHBox.getChildren().removeAll(hitButton, stayButton);
+            buttonHBox.getChildren().addAll(playAgainBjButton);
         });
 
         Button gameBackButton = new Button("Back");
@@ -442,6 +479,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                 buttonHBox.getChildren().remove(playAgainBjButton);
                 buttonHBox.getChildren().addAll(enterBetField, submitBjBetButton);
             }
+            model.placeBet(0);
             enterBetField.setText("");
             model.setScene(Scenes.HOME);
         });
@@ -477,7 +515,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
      * Method to animate cards being placed on the table
      * @param imgV image view that is being replaced by the card
      */
-    public void placeCard(ImageView imgV, ImageView backCard, char who) {
+    public FadeTransition placeCard(ImageView imgV, ImageView backCard, char who) {
         Bounds startCoords = backCard.localToScene(backCard.getBoundsInLocal());
         Bounds endCoords = imgV.localToScene(imgV.getBoundsInLocal());
         TranslateTransition translate = new TranslateTransition();
@@ -530,6 +568,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
 
         fade.setOnFinished(event -> transitionBack.play());
         transitionBack.setOnFinished(event -> fadeBack.play());
+        return fadeBack;
     }
 
 
@@ -734,10 +773,10 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         try (FileReader fr = new FileReader(file)) {
             BufferedReader br = new BufferedReader(fr);
             String line;
-            int val = 10;
             PlayingCards.Face face;
             PlayingCards.Suit suitVal = null;
             while ((line = br.readLine()) != null) {
+                int val = 10;
                 String[] info = line.strip().split("_");
                 if (line.equals("card_back.png")) {
                     continue;
