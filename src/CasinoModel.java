@@ -13,6 +13,7 @@ public class CasinoModel {
     Scenes currentScene;
     HashMap<String, Player> accountMap;
     private final List<Observer<CasinoModel, String>> observers = new LinkedList<>();
+    private int currentBet = 0;
     private ArrayList<PlayingCards> fullCardDeck = new ArrayList<>();
     private ArrayList<PlayingCards> currentDeck = new ArrayList<>();
     private final PlayingCards coveredCard = new PlayingCards(PlayingCards.Suit.BACK, PlayingCards.Face.NONFACE, 0, RESOURCES_DIR + "card_back.png");
@@ -26,26 +27,41 @@ public class CasinoModel {
         this.alertObservers(null);
     }
 
-    public String getActivePlayerName() {
-        return activePlayerAccount.getUsername();
+    /**
+     * Getter for the active player account
+     * @return the active player account
+     */
+    public Player getActivePlayer() {
+        return activePlayerAccount;
     }
 
     /**
      * Method to increase players chip amount
      * GUI calls this and this calls player.winChips()
-     * @param amount number of chips won
+     * @param multiplier the amount you win compared to your bet in the current game
      */
-    public void winBet(int amount) {
+    public void winBet(double multiplier) {
+        int amount = (int) (currentBet*multiplier);
         activePlayerAccount.winChips(amount);
         saveAccounts();
         this.alertObservers("YOU WON " + amount + " CHIPS!!");
     }
 
+    /**
+     * Method to place bets
+     * @param amount number of chips bet
+     */
     public void placeBet(int amount) {
-        activePlayerAccount.betChips(amount);
-        saveAccounts();
-        this.alertObservers("You have bet " + amount + " chips.");
+        if (activePlayerAccount.getChips() > amount) {
+            currentBet = amount;
+            activePlayerAccount.betChips(amount);
+            saveAccounts();
+            this.alertObservers("You have bet " + amount + " chips.");
+        } else {
+            alertObservers("You ain't that rich buddy. Nice try though.");
+        }
     }
+
     /**
      * Allows new users to sign up. GUI calls this and this uses the AccountData.java functions
      * @param usr username in a String
@@ -64,11 +80,34 @@ public class CasinoModel {
         }
     }
 
+    /**
+     * Method to return a random card from the current deck
+     * @return the file name of the card that was drawn from the deck
+     */
     public String hitBlackjack() {
         // TODO make this random instead of hardcoded
-        return currentDeck.get(10).getFileName();
+        int randomNum = 10; // TODO Set this to something
+        String card = currentDeck.get(randomNum).getFileName();
+        currentDeck.remove(randomNum);
+        return card;
     }
 
+    public String getBackCard() {
+        return coveredCard.getFileName();
+    }
+
+    /**
+     * Method to see if the blackjack game has been won or lost
+     * @return a GameResults enum, WON if player won, LOSE if player lost, and NONE if the game is still ongoing
+     */
+    public GameResults checkBjWin() {
+        if (currentBet > 15000) {
+            return GameResults.WIN;
+        } else if (currentBet > 1000 && currentBet < 15000) {
+            return GameResults.LOSE;
+        }
+        return GameResults.NONE;
+    }
 
     /**
      * Saves accounts to the text file with the updated chip balance.
@@ -82,20 +121,28 @@ public class CasinoModel {
         alertObservers(null);
     }
 
-    public PlayingCards getCoveredCard() {
-        return coveredCard;
+    /**
+     * Method to update the model and give text through the model
+     * @param text the message that is to be displayed
+     */
+    public void updateModel(String text) {
+        alertObservers(text);
     }
 
+    /**
+     * Method to create the complete full deck.
+     * Used when initializing the card deck.
+     * @param fullCardDeck the complete arraylist of playing cards
+     */
     public void setFullCardDeck(ArrayList<PlayingCards> fullCardDeck) {
         this.fullCardDeck = fullCardDeck;
     }
 
-    public ArrayList<PlayingCards> getFullCardDeck() {
-        return fullCardDeck;
-    }
-
+    /**
+     * Method to add all the lost cards back to the current deck for when resetting game or starting a different game
+     */
     public void resetCardDeck() {
-        currentDeck = fullCardDeck;
+        currentDeck = new ArrayList<>(fullCardDeck);
     }
 
     /**
