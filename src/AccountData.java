@@ -19,7 +19,6 @@ public class AccountData {
             FileWriter writer = new FileWriter(filename, append);
             writer.write(playerAccount.getUsername() + ", " + playerAccount.getPassword() + ", " + playerAccount.getChips() + "\n");
             writer.close();
-            System.out.println("Successfully saved the account " + playerAccount.getUsername()+ ": " + playerAccount.getChips());
         } catch (IOException e) {
             System.out.println("An error occurred saving the account.");
         }
