@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.*;
 
@@ -12,8 +13,8 @@ public class CasinoModel {
     Scenes currentScene;
     HashMap<String, Player> accountMap;
     private final List<Observer<CasinoModel, String>> observers = new LinkedList<>();
-    private HashSet<PlayingCards> fullCardDeck = new HashSet<>();
-    private HashSet<PlayingCards> currentDeck = new HashSet<>();
+    private ArrayList<PlayingCards> fullCardDeck = new ArrayList<>();
+    private ArrayList<PlayingCards> currentDeck = new ArrayList<>();
     private final PlayingCards coveredCard = new PlayingCards(PlayingCards.Suit.BACK, PlayingCards.Face.NONFACE, 0, RESOURCES_DIR + "card_back.png");
 
     /**
@@ -23,6 +24,10 @@ public class CasinoModel {
         accountMap = accounts.readAccounts();
         currentScene = Scenes.STARTUP;
         this.alertObservers(null);
+    }
+
+    public String getActivePlayerName() {
+        return activePlayerAccount.getUsername();
     }
 
     /**
@@ -59,6 +64,12 @@ public class CasinoModel {
         }
     }
 
+    public String hitBlackjack() {
+        // TODO make this random instead of hardcoded
+        return currentDeck.get(10).getFileName();
+    }
+
+
     /**
      * Saves accounts to the text file with the updated chip balance.
      */
@@ -75,11 +86,11 @@ public class CasinoModel {
         return coveredCard;
     }
 
-    public void setFullCardDeck(HashSet<PlayingCards> fullCardDeck) {
+    public void setFullCardDeck(ArrayList<PlayingCards> fullCardDeck) {
         this.fullCardDeck = fullCardDeck;
     }
 
-    public HashSet<PlayingCards> getFullCardDeck() {
+    public ArrayList<PlayingCards> getFullCardDeck() {
         return fullCardDeck;
     }
 
@@ -108,6 +119,7 @@ public class CasinoModel {
      */
     public void setScene(Scenes newScene) {
         currentScene = newScene;
+        resetCardDeck();
         alertObservers(null);
     }
 

@@ -1,12 +1,17 @@
+import javafx.animation.TranslateTransition;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -14,9 +19,11 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.*;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * The main GUI program for the Casino Project
@@ -30,6 +37,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     private final Label loginMessage = new Label("Login");
     private final Label signupMessage = new Label("Sign up");
     private final Font basicFont = new Font("Ariel", 19);
+    private final Font largeFont = new Font("Ariel", 24);
     private Stage mainStage;
     private Scene startupScene;
     private Scene loginScene;
@@ -64,7 +72,27 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     @Override
     public void start(Stage stage) {
         createMainStage(stage);
-//        blackjackScene = BlackjackGame.createBlackjackScene();
+        blackjackScene = blackjack();
+        /*
+        try {
+            Parent blackjack = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("BlackJack.fxml")));
+            blackjackScene = new Scene(blackjack);
+            Parent roulette = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
+            rouletteScene = new Scene(roulette);
+            Parent poker = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
+            pokerScene = new Scene(poker);
+            Parent slots = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
+            slotsScene = new Scene(slots);
+            Parent coinFlip = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
+            coinflipScene = new Scene(coinFlip);
+            Parent horseRace = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
+            horsebetScene = new Scene(horseRace);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+         */
+
         mainStage.setTitle("Casino GUI");
         update(model, "Please Sign Up or Login");
         mainStage.setScene(startupScene);
@@ -80,7 +108,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
      *  Applications may create other stages, if needed, but they will not be
      *  primary stages.
      */
-    void createMainStage(Stage stage) {
+    public void createMainStage(Stage stage) {
         mainStage = stage;
         TextField loginUsrField = new TextField();
         PasswordField loginPassField = new PasswordField();
@@ -189,6 +217,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         blackjackButton.setMinSize(150, 100);
         blackjackButton.setFont(basicFont);
         blackjackButton.setAlignment(Pos.CENTER);
+        blackjackButton.setOnAction(event -> model.setScene(Scenes.BLACKJACK));
 
         Button rouletteButton = new Button("Roulette");
         rouletteButton.setMinSize(150, 100);
@@ -255,13 +284,62 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     }
 
 
+    public Scene blackjack() {
+        Label dealerLabel = new Label("Dealer");
+        dealerLabel.setFont(largeFont);
+        Label playerLabel = new Label("Player");
+        playerLabel.setFont(largeFont);
+        HBox playerHand = new HBox();
+        playerHand.setAlignment(Pos.CENTER);
+        HBox dealerHand = new HBox();
+        dealerHand.setAlignment(Pos.CENTER);
+
+        Button hitButton = new Button("HIT");
+        hitButton.setMinSize(100, 75);
+        hitButton.setFont(basicFont);
+        hitButton.setAlignment(Pos.CENTER);
+        hitButton.setTextAlignment(TextAlignment.CENTER);
+        hitButton.setOnAction(event -> {
+            ImageView temp = new ImageView(new Image("file:" + model.hitBlackjack()));
+            temp.setFitHeight(175);
+            temp.setPreserveRatio(true);
+            playerHand.getChildren().add(temp);
+            update(model, null);
+        });
+        Button stayButton = new Button("STAY");
+        stayButton.setMinSize(100, 75);
+        stayButton.setFont(basicFont);
+        stayButton.setAlignment(Pos.CENTER);
+        stayButton.setTextAlignment(TextAlignment.CENTER);
+
+        // TODO add textfield to enter a bet, then on submit, have it place 1 face up and 1 facedown card for dealer,
+        // TODO and 2 for player. And maybe try and add the deck top right
+        HBox buttonHBox = new HBox(hitButton, stayButton);
+        buttonHBox.setAlignment(Pos.CENTER);
+        buttonHBox.setSpacing(10);
+        // todo maybe have the submit button not only place the bet, but also delete the textfield and submit button from hbox
+        // todo and replace them with the hit and stay buttons
+
+        //todo add a current credit amount and back button somewhere onscreen
+        VBox finVBox = new VBox(dealerLabel, dealerHand, playerLabel, playerHand, buttonHBox);
+        finVBox.setAlignment(Pos.CENTER);
+        finVBox.setSpacing(30);
+        finVBox.setPadding(new Insets(20, 35, 20, 35));
+
+        return new Scene(finVBox, 1100, 750);
+    }
+
+
+
+
+
     /**
      * Method to create all playing cards from text file to use for card games
      */
     void populateCards() {
-        String fileName = "data/playingCards.txt";
+        String fileName = "data/playingCardsPNG.txt";
         File file = new File(fileName);
-        HashSet<PlayingCards> pcards = new HashSet<>();
+        ArrayList<PlayingCards> pcards = new ArrayList<>();
         try (FileReader fr = new FileReader(file)) {
             BufferedReader br = new BufferedReader(fr);
             String line;
