@@ -297,7 +297,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
      * Creates the blackjack scene and all of its actions
      * @return the created blackjack scene
      */
-    public Scene blackjack() {
+    public Scene blackjack() {                      // todo: maybe add the ability to split if the numbers are the same
         Label dealerLabel = new Label("Dealer");
         dealerLabel.setFont(largeFont);
         Label playerLabel = new Label("Player");
