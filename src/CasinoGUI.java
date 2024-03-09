@@ -731,6 +731,10 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         return new Scene(mainVBox, 800, 600);
     }
 
+    /**
+     * Method to create horse race scene
+     * @return horserace scene
+     */
     public Scene createHorseRace() {
         ImageView imgVH1 = new ImageView(new Image("file:" + RESOURCES_DIR + "HorseRace/" + model.getHorseRace().getHorse(1).getFilename()));
         imgVH1.setFitHeight(60);
@@ -856,6 +860,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             model.setScene(Scenes.HOME);
             horsebetScene = createHorseRace(); // todo: figure a way to reset it without doing this
             model.setScene(Scenes.HORSEBETTING);
+            model.getHorseRace().resetHorses();
             enterBetField.setText("");
             horseAlertLabel.setText("");
             horsesFinished = 0;
@@ -1001,7 +1006,12 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         return new Scene(bPane, 1200, 800);
     }
 
-
+    /**
+     * Method to create transition (animation) effect on the horses in the horse race
+     * @param horseNum the number of the horse moving
+     * @param horseImg the imageView of the horse moving
+     * @return the translateTransition of the horse moving
+     */
     public TranslateTransition startHorse(int horseNum, ImageView horseImg) {
         TranslateTransition translate = new TranslateTransition();
         translate.setNode(horseImg);
