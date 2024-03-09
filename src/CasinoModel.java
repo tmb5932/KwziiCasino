@@ -14,6 +14,7 @@ public class CasinoModel {
     private final List<Observer<CasinoModel, String>> observers = new LinkedList<>();
     private int currentBet = 0;
     private Coin coin = new Coin();
+    private HorseRace horseRace = new HorseRace();
     private ArrayList<PlayingCards> fullCardDeck = new ArrayList<>();
     private ArrayList<PlayingCards> currentDeck = new ArrayList<>();
     private ArrayList<PlayingCards> playerHand = new ArrayList<>();
@@ -168,6 +169,19 @@ public class CasinoModel {
     }
 
     /**
+     * Method to see if the blackjack game has been won when initial cards are placed
+     * @return a GameResults enum, WIN if player won and NONE if the game is still ongoing
+     */
+    public GameResults initialCheckBjWin() {
+        if (bjGetHandTotal('P') == 21 && playerHand.size() == 2) {
+            alertObservers("BLACKJACK!!!");
+            winBet(2.5);
+            return GameResults.WIN;
+        } else
+            return GameResults.NONE;
+    }
+
+    /**
      * Method to see if the blackjack game has been won or lost after every hit
      * @return a GameResults enum, WIN if player won, LOSE if player lost, and NONE if the game is still ongoing
      */
@@ -200,16 +214,32 @@ public class CasinoModel {
     }
 
     /**
-     * Method to see if the blackjack game has been won when initial cards are placed
-     * @return a GameResults enum, WIN if player won and NONE if the game is still ongoing
+     * Method to reset the horse race game
      */
-    public GameResults initialCheckBjWin() {
-        if (bjGetHandTotal('P') == 21 && playerHand.size() == 2) {
-            alertObservers("BLACKJACK!!!");
-            winBet(2.5);
-            return GameResults.WIN;
+    public void resetHorseRace() {
+        horseRace = new HorseRace();
+        currentBet = 0;
+    }
+
+    /**
+     * Method to announce winner of the horse race
+     * @param winningHorseNum the horse that won's number
+     */
+    public void setHorseWin(int winningHorseNum) {
+        alertObservers("Horse #" + winningHorseNum + " won");
+        if (horseRace.getBetHorse().getNumber() == winningHorseNum) {
+            winBet(currentBet * horseRace.getHorse(winningHorseNum).getWinMulti());
+            alertObservers("YOU WON!!!");
         } else
-            return GameResults.NONE;
+            alertObservers("You lost :(");
+    }
+
+    /**
+     * Getter method for the HorseRace instance
+     * @return the HorseRace instance
+     */
+    public HorseRace getHorseRace() {
+        return horseRace;
     }
 
     /**
