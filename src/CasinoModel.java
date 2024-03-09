@@ -13,13 +13,13 @@ public class CasinoModel {
     HashMap<String, Player> accountMap;
     private final List<Observer<CasinoModel, String>> observers = new LinkedList<>();
     private int currentBet = 0;
-    private Coin coin = new Coin();
+    private final Coin coin = new Coin();
     private HorseRace horseRace = new HorseRace();
     private ArrayList<PlayingCards> fullCardDeck = new ArrayList<>();
     private ArrayList<PlayingCards> currentDeck = new ArrayList<>();
     private ArrayList<PlayingCards> playerHand = new ArrayList<>();
     private ArrayList<PlayingCards> dealerHand = new ArrayList<>();
-    private final PlayingCards coveredCard = new PlayingCards(PlayingCards.Suit.BACK, PlayingCards.Face.NONFACE, 0, RESOURCES_DIR + "PNG-cards/card_back.png");
+    private final PlayingCards coveredCard = new PlayingCards(PlayingCards.Suit.BACK, PlayingCards.Face.NONFACE, 0, RESOURCES_DIR + "Blackjack/PNG-cards/card_back.png");
 
     /**
      * Constructor for CasinoModel
@@ -59,7 +59,7 @@ public class CasinoModel {
             currentBet = 0;
             return 0;
         }
-        else if (activePlayerAccount.getChips() >= amount) {
+        else if (activePlayerAccount.getChips() >= amount && amount > 0) {
             currentBet = amount;
             activePlayerAccount.betChips(amount);
             saveAccounts();
@@ -226,9 +226,8 @@ public class CasinoModel {
      * @param winningHorseNum the horse that won's number
      */
     public void setHorseWin(int winningHorseNum) {
-        alertObservers("Horse #" + winningHorseNum + " won");
         if (horseRace.getBetHorse().getNumber() == winningHorseNum) {
-            winBet(currentBet * horseRace.getHorse(winningHorseNum).getWinMulti());
+            winBet(horseRace.getHorse(winningHorseNum).getWinMulti());
             alertObservers("YOU WON!!!");
         } else
             alertObservers("You lost :(");
