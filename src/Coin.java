@@ -1,39 +1,46 @@
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.TextAlignment;
-
 import java.util.Random;
 
+/**
+ * Coin object for the coinflip game
+ * @author Travis Brown (Kwzii)
+ */
 public class Coin {
 
+    /**
+     * enum for the sides of the coin
+     */
     public enum CoinSide {
         HEADS,
         TAILS
     }
     private CoinSide face = CoinSide.HEADS;
-    private String wHead = "misc/washington_head.png";
-    private String wTail = "misc/washington_tail.png";
-    private String gHead = "misc/golden_head.png";
-    private String gTail = "misc/golden_tail.png";
+    private final String wHead = "CoinFlip/washington_head.png";
+    private final String wTail = "CoinFlip/washington_tail.png";
+    private final String gHead = "CoinFlip/golden_head.png";
+    private final String gTail = "CoinFlip/golden_tail.png";
     private String currentHead;
     private String currentTail;
     private CoinSide currentBet;
+
+    /**
+     * Constructor for coin object
+     */
     public Coin() {
         currentHead = wHead;
         currentTail = wTail;
     }
 
+    /**
+     * Getter for the current coin side that is facing up
+     * @return face
+     */
     public CoinSide getFace() {
         return face;
     }
 
+    /**
+     * Method to flip the coin
+     */
     public void flipCoin() {
         Random rand = new Random();
         int randInt = rand.nextInt() % 2;
@@ -43,22 +50,41 @@ public class Coin {
             face = CoinSide.TAILS;
     }
 
+    /**
+     * Getter for currentHead value
+     * @return currentHead
+     */
     public String getCurrentHead() {
         return currentHead;
     }
 
-    public void setCurrentBet(CoinSide bet) {
-        currentBet = bet;
-    }
-
-    public CoinSide getCurrentBet() {
-        return currentBet;
-    }
-
+    /**
+     * Getter for currentTail value
+     * @return currentTail
+     */
     public String getCurrentTail() {
         return currentTail;
     }
 
+    /**
+     * Setter for side of head that is currently being bet on
+     * @param bet the side of the coin that is being bet on
+     */
+    public void setCurrentBet(CoinSide bet) {
+        currentBet = bet;
+    }
+
+    /**
+     * Getter for the side of the coin that is currently being bet on
+     * @return currentBet
+     */
+    public CoinSide getCurrentBet() {
+        return currentBet;
+    }
+
+    /**
+     * Methof to swap what coin image is currently being used
+     */
     public void swapCurrentCoin() {
         if (currentHead.equals(wHead)) {
             currentHead = gHead;
@@ -68,12 +94,5 @@ public class Coin {
             currentHead = wHead;
             currentTail = wTail;
         }
-    }
-
-    @Override
-    public String toString() {
-        return "Coin{" +
-                "face=" + face +
-                '}';
     }
 }

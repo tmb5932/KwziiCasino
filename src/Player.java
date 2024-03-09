@@ -4,7 +4,7 @@ import java.util.Objects;
 /**
  * Player saves the data of the current gambler.
  * May at some point be implemented into a login/sign up system where passwords and other things are saved
- * By Travis Brown (Kwzii)
+ * @author Travis Brown (Kwzii)
  */
 
 public class Player {

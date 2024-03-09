@@ -1,65 +1,119 @@
-import java.util.Objects;
 import java.util.Random;
 
+/**
+ * Class for Horse object in horserace game for KwziiCasino
+ * @author Travis Brown (Kwzii)
+ */
 public class Horse {
     private final int number;
-    private final double winMulti;
-    private final double speed;
+    private double winMulti;
+    private double speed;
     private String filename;
+    private String color;
 
-    Horse(int number) {
-        Random rand = new Random();
+    /**
+     * Constructor for Horse object
+     * @param number the horse's number
+     * @param color the color of the horse
+     */
+    Horse(int number, String color) {
         this.number = number;
-        this.speed = rand.nextDouble(1,6);  // gives double [1-5)
-        this.winMulti = 15 - (speed * 2); // todo: I dont want this directly linked to speed,
-                                                //todo: because lowest win multiplier will always win
-        setFilename();
+        this.color = color;
+        setVars();
     }
 
-    private void setFilename() {
-        switch (number) {
-            case 1 -> filename = "blue_horse.png";
-            case 2 -> filename = "red_horse.png";
-            case 3 -> filename = "green_horse.png";
-            case 4 -> filename = "black_horse.png";
-            default -> filename = "error_horse.png"; // SHOULD NEVER GET HERE
+    /**
+     * Helper method to randomize the win multiplier, speed, and to also set the proper filename based on the color
+     */
+    private void setVars() {
+        Random rand = new Random();
+        switch (color.toLowerCase()) {
+            case "blue" -> {
+                filename = "blue_horse.png";
+                winMulti = rand.nextDouble(2, 5);
+                speed = rand.nextDouble(2.75, 5);
+            }
+            case "red" -> {
+                filename = "red_horse.png";
+                winMulti = rand.nextDouble(1, 4);
+                speed = rand.nextDouble(3.25, 6);
+            }
+            case "green" -> {
+                filename = "green_horse.png";
+                winMulti = rand.nextDouble(4, 15);
+                speed = rand.nextDouble(1, 4.6);
+            }
+            case "black" -> {
+                filename = "black_horse.png";
+                winMulti = rand.nextDouble(1, 9);
+                speed = rand.nextDouble(1, 7.75);
+            }
+            default -> {
+                filename = "error_horse.png"; // Gets here if they choose an "illegal" color
+                winMulti = 1;
+                speed = 1;
+            }
         }
     }
 
+    /**
+     * Method to set new random speeds and win multipliers for the horse
+     */
+    public void resetVars() {
+        Random rand = new Random();
+        switch (this.color.toLowerCase()) {
+            case "blue" -> {
+                winMulti = rand.nextDouble(2, 5);
+                speed = rand.nextDouble(2.75, 5);
+            }
+            case "red" -> {
+                winMulti = rand.nextDouble(1, 4);
+                speed = rand.nextDouble(3.25, 6);
+            }
+            case "green" -> {
+                winMulti = rand.nextDouble(4, 15);
+                speed = rand.nextDouble(1, 4.6);
+            }
+            case "black" -> {
+                winMulti = rand.nextDouble(1, 9);
+                speed = rand.nextDouble(1, 7.75);
+            }
+            default -> {
+                winMulti = 1;
+                speed = 1;
+            }
+        }
+    }
+
+    /**
+     * Getter for win multiplier
+     * @return the win multiplier
+     */
     public double getWinMulti() {
         return winMulti;
     }
 
+    /**
+     * Getter for the horses number
+     * @return number
+     */
     public int getNumber() {
         return number;
     }
 
+    /**
+     * Getter for speed
+     * @return speed
+     */
     public double getSpeed() {
         return speed;
     }
 
+    /**
+     * Getter for filename
+     * @return filename
+     */
     public String getFilename() {
         return filename;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Horse horse)) return false;
-        return number == horse.number && winMulti == horse.winMulti && speed == horse.speed;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(number, winMulti, speed);
-    }
-
-    @Override
-    public String toString() {
-        return "Horse{" +
-                "number=" + number +
-                ", winMulti=" + winMulti +
-                ", speed=" + speed +
-                '}';
     }
 }

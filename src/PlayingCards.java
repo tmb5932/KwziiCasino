@@ -1,5 +1,9 @@
 import java.util.Objects;
 
+/**
+ * Class for Playing cards
+ * @author Travis Brown (Kwzii)
+ */
 public class PlayingCards {
     public enum Suit {
         HEARTS,
@@ -22,6 +26,13 @@ public class PlayingCards {
     private final int value;
     private final String fileName;
 
+    /**
+     * Constructor for playing card object
+     * @param suit the suit of the card
+     * @param face the face value of the card
+     * @param value the value of the card
+     * @param fileName the filename of the card
+     */
     PlayingCards(Suit suit, Face face, int value, String fileName) {
         this.suit = suit;
         this.face = face;
@@ -29,18 +40,34 @@ public class PlayingCards {
         this.fileName = fileName;
     }
 
+    /**
+     * Getter for the value
+     * @return value
+     */
     public int getValue() {
         return value;
     }
 
+    /**
+     * Getter for the suit
+     * @return suit
+     */
     public Suit getSuit() {
         return suit;
     }
 
+    /**
+     * Getter for the face
+     * @return face
+     */
     public Face getFace() {
         return face;
     }
 
+    /**
+     * Getter for the filename
+     * @return filename
+     */
     public String getFileName() {
         return fileName;
     }
