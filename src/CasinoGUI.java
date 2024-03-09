@@ -4,10 +4,7 @@ import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.geometry.*;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -36,9 +33,12 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     private final Label signupMessage = new Label("Sign up");
     private final Label bjCreditLabel = new Label("Credits: " + 0);
     private final Label homeCreditLabel = new Label("Credits: " + 0);
-    private final Label blackjackAlertMessage = new Label("");
+    private final Label blackjackAlertLabel = new Label("");
     private final Label coinCreditLabel = new Label("Credits: " + 0);
     private final Label coinAlertLabel = new Label("");
+    private final Label horseAlertLabel = new Label("");
+    private final Label horseCreditLabel = new Label("Credits: " + 0);
+    private boolean hRaceFinished;
     private int numPlayerCards = 0;
     private int numDealerCards = 0;
     private final double cardWidth = 120.5;
@@ -78,6 +78,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         createMainStage(stage);
         blackjackScene = blackjack();
         coinflipScene = createCoinScene();
+        horsebetScene = createHorseRace();
         /*
         try {
             Parent roulette = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
@@ -87,7 +88,6 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             Parent slots = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
             slotsScene = new Scene(slots);
             Parent horseRace = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
-            horsebetScene = new Scene(horseRace);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -248,6 +248,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         horsesButton.setMinSize(150, 100);
         horsesButton.setFont(basicFont);
         horsesButton.setAlignment(Pos.CENTER);
+        horsesButton.setOnAction(event -> model.setScene(Scenes.HORSEBETTING));
 
         // Game Home Scene
         GridPane homeGameGrid = new GridPane();
@@ -301,7 +302,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         playerLabel.setFont(largeFont);
         playerLabel.setFont(largeFont);
 
-        blackjackAlertMessage.setFont(basicFont);
+        blackjackAlertLabel.setFont(basicFont);
 
         HBox playerHand = new HBox();
 //        playerHand.setAlignment(Pos.CENTER);  // TODO animations do not work if HBox's are centered :(
@@ -355,7 +356,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             if (!enterBetField.getText().isEmpty()) {
                 try {
                     if (model.placeBet(Integer.parseInt(enterBetField.getText())) == 0) {
-                        blackjackAlertMessage.setText("");
+                        blackjackAlertLabel.setText("");
                         buttonHBox.getChildren().removeAll(enterBetField, submitBjBetButton);
 
                         ImageView dealer1 = new ImageView(new Image("file:" + model.dealerHitBlackjack()));
@@ -495,7 +496,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         centerVBox.setSpacing(30);
         centerVBox.setPadding(new Insets(20, 35, 20, 35));
 
-        VBox bottomVBox = new VBox(blackjackAlertMessage, buttonHBox);
+        VBox bottomVBox = new VBox(blackjackAlertLabel, buttonHBox);
         bottomVBox.setAlignment(Pos.CENTER);
         bottomVBox.setSpacing(30);
         bottomVBox.setPadding(new Insets(20, 35, 20, 35));
@@ -583,6 +584,56 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         transitionBack.setOnFinished(event -> fadeBack.play());
         return fadeBack;
     }
+
+    /**
+     * Method to create all playing cards from text file to use for card games
+     */
+    public void populateCards() {
+        String fileName = "data/playingCardsPNG.txt";
+        File file = new File(fileName);
+        ArrayList<PlayingCards> pcards = new ArrayList<>();
+        try (FileReader fr = new FileReader(file)) {
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+            PlayingCards.Face face;
+            PlayingCards.Suit suitVal = null;
+            while ((line = br.readLine()) != null) {
+                int val = 10;
+                String[] info = line.strip().split("_");
+                if (line.equals("card_back.png")) {
+                    continue;
+                }
+                switch (info[0]) {
+                    case "ace" -> {
+                        face = PlayingCards.Face.ACE;
+                        val = 11;
+                    }
+                    case "jack" -> face = PlayingCards.Face.JACK;
+                    case "king" -> face = PlayingCards.Face.KING;
+                    case "queen" -> face = PlayingCards.Face.QUEEN;
+                    default -> {
+                        face = PlayingCards.Face.NONFACE;
+                        val = Integer.parseInt(info[0]);
+                    }
+                }
+                switch (info[2]) {
+                    case "hearts.png" -> suitVal = PlayingCards.Suit.HEARTS;
+                    case "spades.png" -> suitVal = PlayingCards.Suit.SPADES;
+                    case "diamonds.png" -> suitVal = PlayingCards.Suit.DIAMONDS;
+                    case "clubs.png" -> suitVal = PlayingCards.Suit.CLUBS;
+                }
+                PlayingCards card = new PlayingCards(suitVal, face, val, RESOURCES_DIR + "Blackjack/PNG-cards/" + line);
+                pcards.add(card);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        model.setFullCardDeck(pcards);
+    }
+
+    /**
+     * Method to create coin flip game scene
+     */
 
     public Scene createCoinScene() {
         coinAlertLabel.setFont(basicFont);
@@ -680,50 +731,183 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         return new Scene(mainVBox, 800, 600);
     }
 
-    /**
-     * Method to create all playing cards from text file to use for card games
-     */
-    public void populateCards() {
-        String fileName = "data/playingCardsPNG.txt";
-        File file = new File(fileName);
-        ArrayList<PlayingCards> pcards = new ArrayList<>();
-        try (FileReader fr = new FileReader(file)) {
-            BufferedReader br = new BufferedReader(fr);
-            String line;
-            PlayingCards.Face face;
-            PlayingCards.Suit suitVal = null;
-            while ((line = br.readLine()) != null) {
-                int val = 10;
-                String[] info = line.strip().split("_");
-                if (line.equals("card_back.png")) {
-                    continue;
+    public Scene createHorseRace() {
+        ImageView imgVH1 = new ImageView(new Image("file:" + RESOURCES_DIR + "HorseRace/" + model.getHorseRace().getHorse(1).getFilename()));
+        imgVH1.setFitHeight(50); // todo Fix this ratio. don't know how big i want them yet
+        imgVH1.setPreserveRatio(true);
+
+        ImageView imgVH2 = new ImageView(new Image("file:" + RESOURCES_DIR + "HorseRace/" + model.getHorseRace().getHorse(2).getFilename()));
+        imgVH2.setFitHeight(50);
+        imgVH2.setPreserveRatio(true);
+
+        ImageView imgVH3 = new ImageView(new Image("file:" + RESOURCES_DIR + "HorseRace/" + model.getHorseRace().getHorse(3).getFilename()));
+        imgVH3.setFitHeight(50);
+        imgVH3.setPreserveRatio(true);
+
+        ImageView imgVH4 = new ImageView(new Image("file:" + RESOURCES_DIR + "HorseRace/" + model.getHorseRace().getHorse(4).getFilename()));
+        imgVH4.setFitHeight(50);
+        imgVH4.setPreserveRatio(true);
+
+        ImageView imgVStartLine = new ImageView(new Image("file:" + RESOURCES_DIR + "HorseRace/" + "start_line.png"));
+        imgVStartLine.setFitHeight(400);
+        imgVStartLine.setPreserveRatio(true);
+
+        ImageView imgVFinishLine = new ImageView(new Image("file:" + RESOURCES_DIR + "HorseRace/" + "finish_line.png"));
+        imgVFinishLine.setFitHeight(400);
+        imgVFinishLine.setPreserveRatio(true);
+
+        TextField enterBetField = new TextField();
+        enterBetField.setPromptText("Enter your bet");
+        enterBetField.setAlignment(Pos.CENTER);
+
+        ToggleGroup radioGroup = new ToggleGroup();
+
+        RadioButton radioHorse1 = new RadioButton();
+        radioHorse1.setText("Horse 1");
+        radioHorse1.setToggleGroup(radioGroup);
+
+        RadioButton radioHorse2 = new RadioButton();
+        radioHorse2.setText("Horse 2");
+        radioHorse2.setToggleGroup(radioGroup);
+
+        RadioButton radioHorse3 = new RadioButton();
+        radioHorse3.setText("Horse 3");
+        radioHorse3.setToggleGroup(radioGroup);
+
+        RadioButton radioHorse4 = new RadioButton();
+        radioHorse4.setText("Horse 4");
+        radioHorse4.setToggleGroup(radioGroup);
+
+        VBox radioButtonHBox = new VBox(radioHorse1, radioHorse2, radioHorse3, radioHorse4);
+        radioButtonHBox.setAlignment(Pos.CENTER);
+        radioButtonHBox.setSpacing(15);
+        radioButtonHBox.setPadding(new Insets(20, 35, 20, 35));
+
+        Button placeBetButton = new Button();
+        placeBetButton.setText("Place Bet");
+        placeBetButton.setMinSize(100, 75);
+        placeBetButton.setFont(basicFont);
+        placeBetButton.setAlignment(Pos.CENTER);
+        placeBetButton.setTextAlignment(TextAlignment.CENTER);
+
+        Button playAgainButton = new Button();
+        playAgainButton.setText("Play Again?");
+        playAgainButton.setMinSize(100, 75);
+        playAgainButton.setFont(basicFont);
+        playAgainButton.setAlignment(Pos.CENTER);
+        playAgainButton.setTextAlignment(TextAlignment.CENTER);
+
+        HBox buttonHBox = new HBox(radioButtonHBox, enterBetField, placeBetButton);
+        buttonHBox.setAlignment(Pos.CENTER);
+        buttonHBox.setSpacing(10);
+
+        playAgainButton.setOnAction(event -> {
+            buttonHBox.getChildren().remove(playAgainButton);
+            buttonHBox.getChildren().addAll(radioButtonHBox, enterBetField, placeBetButton);
+            model.resetHorseRace();
+            model.setScene(Scenes.HOME);
+            horsebetScene = createHorseRace();
+            model.setScene(Scenes.HORSEBETTING);
+            enterBetField.setText("");
+            horseAlertLabel.setText("");
+            hRaceFinished = false;
+        });
+
+        placeBetButton.setOnAction(event -> {         // todo Would be funny if when the race starts a horn goes off
+            RadioButton selected = (RadioButton) radioGroup.getSelectedToggle();
+            if (selected == null) {
+                model.updateModel("Please Select a Horse");
+            } else if (enterBetField.getText().isEmpty()) {
+                model.updateModel("Please Place a Bet");
+            } else {
+                switch (selected.getText()) {
+                    case "Horse 1" -> model.getHorseRace().setBetHorse(1);
+                    case "Horse 2" -> model.getHorseRace().setBetHorse(2);
+                    case "Horse 3" -> model.getHorseRace().setBetHorse(3);
+                    case "Horse 4" -> model.getHorseRace().setBetHorse(4);
                 }
-                switch (info[0]) {
-                    case "ace" -> {
-                        face = PlayingCards.Face.ACE;
-                        val = 11;
-                    }
-                    case "jack" -> face = PlayingCards.Face.JACK;
-                    case "king" -> face = PlayingCards.Face.KING;
-                    case "queen" -> face = PlayingCards.Face.QUEEN;
-                    default -> {
-                        face = PlayingCards.Face.NONFACE;
-                        val = Integer.parseInt(info[0]);
-                    }
+                try {
+                    horseAlertLabel.setText("Bet Placed");
+                    model.placeBet(Integer.parseInt(enterBetField.getText()));
+                    buttonHBox.getChildren().remove(radioButtonHBox);
+                    buttonHBox.getChildren().remove(enterBetField);
+                    buttonHBox.getChildren().remove(placeBetButton);
+                    buttonHBox.getChildren().add(playAgainButton);
+                    startHorse(1, imgVH1);
+                    startHorse(2, imgVH2);
+                    startHorse(3, imgVH3);
+                    startHorse(4, imgVH4);  // todo May need a helper function to start all at same time
+                } catch (NumberFormatException nfe) {
+                    model.updateModel("Please Enter a Number");
                 }
-                switch (info[2]) {
-                    case "hearts.png" -> suitVal = PlayingCards.Suit.HEARTS;
-                    case "spades.png" -> suitVal = PlayingCards.Suit.SPADES;
-                    case "diamonds.png" -> suitVal = PlayingCards.Suit.DIAMONDS;
-                    case "clubs.png" -> suitVal = PlayingCards.Suit.CLUBS;
-                }
-                PlayingCards card = new PlayingCards(suitVal, face, val, RESOURCES_DIR + "PNG-cards/" + line);
-                pcards.add(card);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        model.setFullCardDeck(pcards);
+        });
+
+        Button gameBackButton = new Button("Back");
+        gameBackButton.setMinSize(125, 50);
+        gameBackButton.setFont(basicFont);
+        gameBackButton.setAlignment(Pos.CENTER);
+        gameBackButton.setTextAlignment(TextAlignment.CENTER);
+        gameBackButton.setOnAction(e ->{
+            model.resetHorseRace();
+            model.setScene(Scenes.HOME);
+            horsebetScene = createHorseRace();
+            hRaceFinished = false;
+            horseAlertLabel.setText("");
+        });
+
+        VBox leftVBox = new VBox(imgVH1, imgVH2, imgVH3, imgVH4);
+        leftVBox.setAlignment(Pos.CENTER);
+        leftVBox.setSpacing(50);
+
+        HBox leftHBox = new HBox(leftVBox, imgVStartLine);
+        leftHBox.setAlignment(Pos.CENTER_LEFT);
+        leftHBox.setSpacing(-100);
+        leftHBox.setPadding(new Insets(20, 35, 20, 35));
+
+        HBox rightHBox = new HBox(imgVFinishLine);
+        rightHBox.setAlignment(Pos.CENTER_RIGHT);
+        rightHBox.setSpacing(0);
+        rightHBox.setPadding(new Insets(20, 35, 20, 35));
+
+        horseAlertLabel.setFont(basicFont);
+        horseAlertLabel.setAlignment(Pos.CENTER);
+
+        VBox bottomVBox = new VBox(horseAlertLabel, buttonHBox);
+        bottomVBox.setAlignment(Pos.CENTER);
+        bottomVBox.setSpacing(30);
+        bottomVBox.setPadding(new Insets(20, 35, 20, 35));
+
+        horseCreditLabel.setFont(basicFont);
+        horseCreditLabel.setAlignment(Pos.BOTTOM_CENTER);
+        HBox topHBox = new HBox(horseCreditLabel, gameBackButton);
+        topHBox.setAlignment(Pos.TOP_RIGHT);
+        topHBox.setSpacing(45);
+
+        BorderPane bPane = new BorderPane();
+        bPane.setTop(topHBox);
+        bPane.setLeft(leftHBox);
+        bPane.setCenter(rightHBox);
+        bPane.setBottom(bottomVBox);
+        bPane.setPadding(new Insets(20, 35, 20, 35));
+        return new Scene(bPane, 1200, 800);
+    }
+
+
+    public void startHorse(int horseNum, ImageView horseImg) {
+        TranslateTransition translate = new TranslateTransition();
+        translate.setNode(horseImg);
+        translate.setByX(1058);
+
+        double speed = model.getHorseRace().getHorse(horseNum).getSpeed();
+
+        translate.setDuration(Duration.millis(6000/speed));
+        translate.setOnFinished( event -> {
+            if(!hRaceFinished) {
+                hRaceFinished = true;
+                model.setHorseWin(horseNum);
+        }});
+        translate.play();
     }
 
     /**
@@ -781,9 +965,11 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
 
                 case HOME -> homeLabel.setText(text);
 
-                case BLACKJACK -> blackjackAlertMessage.setText(text);
+                case BLACKJACK -> blackjackAlertLabel.setText(text);
 
                 case COINFLIP -> coinAlertLabel.setText(text);
+
+                case HORSEBETTING -> horseAlertLabel.setText(text);
             }
         }
         // Set the credits to their proper value
@@ -791,6 +977,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             bjCreditLabel.setText("Credits: " + model.getActivePlayer().getChips());
             homeCreditLabel.setText("Credits: " + model.getActivePlayer().getChips());
             coinCreditLabel.setText("Credits: " + model.getActivePlayer().getChips());
+            horseCreditLabel.setText("Credits: " + model.getActivePlayer().getChips());
         }
     }
 }
