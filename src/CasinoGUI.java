@@ -1015,7 +1015,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     public TranslateTransition startHorse(int horseNum, ImageView horseImg) {
         TranslateTransition translate = new TranslateTransition();
         translate.setNode(horseImg);
-        translate.setByX(1058); // Magic number found through trial and error.
+        translate.setByX(1088); // Magic number found through trial and error.
                                     // How far horses need to move to cross finish line while staying on screen=
         double speed = model.getHorseRace().getHorse(horseNum).getSpeed();
 
