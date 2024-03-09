@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.*;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 /**
@@ -42,6 +43,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     private int numPlayerCards = 0;
     private int numDealerCards = 0;
     private final double cardWidth = 120.5;
+    private int horsesFinished = 0;
     private Stage mainStage;
     private Scene startupScene;
     private Scene loginScene;
@@ -176,7 +178,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         signupSubmitButton.setAlignment(Pos.CENTER);
         VBox signupVBox = new VBox(signupMessage, signupUsrField,
                 signupPassField, signupSubmitButton, signupBackButton);
-        signupSubmitButton.setOnAction(e -> {
+        signupSubmitButton.setOnAction(event -> {
             if ((signupUsrField.getText() != null && !signupPassField.getText().isEmpty())) {
                 model.updateModel(signupUsrField.getText() + ", thank you for signing up!");
                 model.signUp(signupUsrField.getText(), signupPassField.getText());
@@ -202,7 +204,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         loginSubmitButton.setAlignment(Pos.CENTER);
         VBox loginVBox = new VBox(loginMessage, loginUsrField, loginPassField,
                 loginSubmitButton, loginBackButton);
-        loginSubmitButton.setOnAction(e -> {
+        loginSubmitButton.setOnAction(event -> {
             if ((loginUsrField.getText() != null && !loginPassField.getText().isEmpty())) {
                 model.updateModel(loginUsrField.getText() + ", thank you for logging in!");
                 model.login(loginUsrField.getText(), loginPassField.getText());
@@ -305,11 +307,9 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         blackjackAlertLabel.setFont(basicFont);
 
         HBox playerHand = new HBox();
-//        playerHand.setAlignment(Pos.CENTER);  // TODO animations do not work if HBox's are centered :(
         playerHand.setMinHeight(175);
 
         HBox dealerHand = new HBox();
-//        dealerHand.setAlignment(Pos.CENTER);  // TODO. figure something out about this. it looks bad not centered
         dealerHand.setMinHeight(175);
 
         Button hitButton = new Button("HIT");
@@ -409,7 +409,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             }
         });
 
-        playAgainBjButton.setOnAction(e -> {
+        playAgainBjButton.setOnAction(event -> {
             buttonHBox.getChildren().remove(playAgainBjButton);
             buttonHBox.getChildren().addAll(enterBetField, submitBjBetButton);
             model.resetCardDeck();
@@ -465,7 +465,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         gameBackButton.setFont(basicFont);
         gameBackButton.setAlignment(Pos.CENTER);
         gameBackButton.setTextAlignment(TextAlignment.CENTER);
-        gameBackButton.setOnAction(e ->{
+        gameBackButton.setOnAction(event ->{
             model.resetCardDeck();
             playerHand.getChildren().clear();
             dealerHand.getChildren().clear();
@@ -716,7 +716,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             }
         });
 
-        coinBackButton.setOnAction(e ->{
+        coinBackButton.setOnAction(event ->{
             removableVBox.getChildren().clear();
             removableVBox.getChildren().addAll(betField, buttonsHBox);
             betField.setText("");
@@ -733,27 +733,27 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
 
     public Scene createHorseRace() {
         ImageView imgVH1 = new ImageView(new Image("file:" + RESOURCES_DIR + "HorseRace/" + model.getHorseRace().getHorse(1).getFilename()));
-        imgVH1.setFitHeight(50); // todo Fix this ratio. don't know how big i want them yet
+        imgVH1.setFitHeight(60);
         imgVH1.setPreserveRatio(true);
 
         ImageView imgVH2 = new ImageView(new Image("file:" + RESOURCES_DIR + "HorseRace/" + model.getHorseRace().getHorse(2).getFilename()));
-        imgVH2.setFitHeight(50);
+        imgVH2.setFitHeight(60);
         imgVH2.setPreserveRatio(true);
 
         ImageView imgVH3 = new ImageView(new Image("file:" + RESOURCES_DIR + "HorseRace/" + model.getHorseRace().getHorse(3).getFilename()));
-        imgVH3.setFitHeight(50);
+        imgVH3.setFitHeight(60);
         imgVH3.setPreserveRatio(true);
 
         ImageView imgVH4 = new ImageView(new Image("file:" + RESOURCES_DIR + "HorseRace/" + model.getHorseRace().getHorse(4).getFilename()));
-        imgVH4.setFitHeight(50);
+        imgVH4.setFitHeight(60);
         imgVH4.setPreserveRatio(true);
 
         ImageView imgVStartLine = new ImageView(new Image("file:" + RESOURCES_DIR + "HorseRace/" + "start_line.png"));
-        imgVStartLine.setFitHeight(400);
+        imgVStartLine.setFitHeight(425);
         imgVStartLine.setPreserveRatio(true);
 
         ImageView imgVFinishLine = new ImageView(new Image("file:" + RESOURCES_DIR + "HorseRace/" + "finish_line.png"));
-        imgVFinishLine.setFitHeight(400);
+        imgVFinishLine.setFitHeight(425);
         imgVFinishLine.setPreserveRatio(true);
 
         TextField enterBetField = new TextField();
@@ -761,27 +761,74 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         enterBetField.setAlignment(Pos.CENTER);
 
         ToggleGroup radioGroup = new ToggleGroup();
-
+        Font radioFont = new Font("Ariel", 14);
         RadioButton radioHorse1 = new RadioButton();
         radioHorse1.setText("Horse 1");
+        radioHorse1.setFont(radioFont);
         radioHorse1.setToggleGroup(radioGroup);
+        radioHorse1.setStyle("-fx-text-fill: #0000ff;");
 
         RadioButton radioHorse2 = new RadioButton();
         radioHorse2.setText("Horse 2");
+        radioHorse2.setFont(radioFont);
         radioHorse2.setToggleGroup(radioGroup);
+        radioHorse2.setStyle("-fx-text-fill: #ff0000;");
 
         RadioButton radioHorse3 = new RadioButton();
         radioHorse3.setText("Horse 3");
+        radioHorse3.setFont(radioFont);
         radioHorse3.setToggleGroup(radioGroup);
+        radioHorse3.setStyle("-fx-text-fill: #007e00;");
 
         RadioButton radioHorse4 = new RadioButton();
         radioHorse4.setText("Horse 4");
+        radioHorse4.setFont(radioFont);
         radioHorse4.setToggleGroup(radioGroup);
+        radioHorse4.setStyle("-fx-text-fill: #000000;");
 
         VBox radioButtonHBox = new VBox(radioHorse1, radioHorse2, radioHorse3, radioHorse4);
         radioButtonHBox.setAlignment(Pos.CENTER);
         radioButtonHBox.setSpacing(15);
-        radioButtonHBox.setPadding(new Insets(20, 35, 20, 35));
+        radioButtonHBox.setPadding(new Insets(0, 0, 0, 5));
+
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(2);
+
+        Label multiLabel = new Label("Odds");
+        multiLabel.setFont(basicFont);
+        multiLabel.setAlignment(Pos.CENTER_LEFT);
+
+        Label h1MultiLabel = new Label(df.format(model.getHorseRace().getHorse(1).getWinMulti()) + " : 1");
+        h1MultiLabel.setFont(radioFont);
+        h1MultiLabel.setAlignment(Pos.TOP_RIGHT);
+        h1MultiLabel.setStyle("-fx-text-fill: #0000ff;");
+
+        Label h2MultiLabel = new Label(df.format(model.getHorseRace().getHorse(2).getWinMulti()) + " : 1");
+        h2MultiLabel.setFont(radioFont);
+        h2MultiLabel.setAlignment(Pos.TOP_RIGHT);
+        h2MultiLabel.setStyle("-fx-text-fill: #ff0000;");
+
+        Label h3MultiLabel = new Label(df.format(model.getHorseRace().getHorse(3).getWinMulti()) + " : 1");
+        h3MultiLabel.setFont(radioFont);
+        h3MultiLabel.setAlignment(Pos.TOP_RIGHT);
+        h3MultiLabel.setStyle("-fx-text-fill: #007e00;");
+
+        Label h4MultiLabel = new Label(df.format(model.getHorseRace().getHorse(4).getWinMulti()) + " : 1");
+        h4MultiLabel.setFont(radioFont);
+        h4MultiLabel.setAlignment(Pos.TOP_RIGHT);
+        h4MultiLabel.setStyle("-fx-text-fill: #000000;");
+
+        VBox multipliersHBox = new VBox(h1MultiLabel, h2MultiLabel, h3MultiLabel, h4MultiLabel);
+        multipliersHBox.setAlignment(Pos.TOP_RIGHT);
+        multipliersHBox.setSpacing(16);
+        multipliersHBox.setPadding(new Insets(0, 0, 0, 0));
+
+        HBox horsePickerHBox = new HBox(multipliersHBox, radioButtonHBox);
+
+        VBox horsePickVBox = new VBox(multiLabel, horsePickerHBox);
+        horsePickVBox.setAlignment(Pos.TOP_CENTER);
+        horsePickVBox.setSpacing(15);
+        horsePickVBox.setPadding(new Insets(0, 0, 20, 0));
 
         Button placeBetButton = new Button();
         placeBetButton.setText("Place Bet");
@@ -797,20 +844,36 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         playAgainButton.setAlignment(Pos.CENTER);
         playAgainButton.setTextAlignment(TextAlignment.CENTER);
 
-        HBox buttonHBox = new HBox(radioButtonHBox, enterBetField, placeBetButton);
+        HBox buttonHBox = new HBox(horsePickVBox, enterBetField, placeBetButton);
         buttonHBox.setAlignment(Pos.CENTER);
         buttonHBox.setSpacing(10);
 
         playAgainButton.setOnAction(event -> {
             buttonHBox.getChildren().remove(playAgainButton);
-            buttonHBox.getChildren().addAll(radioButtonHBox, enterBetField, placeBetButton);
+            horsePickVBox.setVisible(true);
+            buttonHBox.getChildren().addAll(enterBetField, placeBetButton);
             model.resetHorseRace();
             model.setScene(Scenes.HOME);
-            horsebetScene = createHorseRace();
+            horsebetScene = createHorseRace(); // todo: figure a way to reset it without doing this
             model.setScene(Scenes.HORSEBETTING);
             enterBetField.setText("");
             horseAlertLabel.setText("");
+            horsesFinished = 0;
             hRaceFinished = false;
+        });
+
+        Button gameBackButton = new Button("Back");
+        gameBackButton.setMinSize(125, 50);
+        gameBackButton.setFont(basicFont);
+        gameBackButton.setAlignment(Pos.CENTER);
+        gameBackButton.setTextAlignment(TextAlignment.CENTER);
+        gameBackButton.setOnAction(event ->{
+            model.resetHorseRace();
+            model.setScene(Scenes.HOME);
+            horsebetScene = createHorseRace();
+            hRaceFinished = false;
+            horseAlertLabel.setText("");
+            horsesFinished = 0;
         });
 
         placeBetButton.setOnAction(event -> {         // todo Would be funny if when the race starts a horn goes off
@@ -828,32 +891,77 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                 }
                 try {
                     horseAlertLabel.setText("Bet Placed");
-                    model.placeBet(Integer.parseInt(enterBetField.getText()));
-                    buttonHBox.getChildren().remove(radioButtonHBox);
-                    buttonHBox.getChildren().remove(enterBetField);
-                    buttonHBox.getChildren().remove(placeBetButton);
-                    buttonHBox.getChildren().add(playAgainButton);
-                    startHorse(1, imgVH1);
-                    startHorse(2, imgVH2);
-                    startHorse(3, imgVH3);
-                    startHorse(4, imgVH4);  // todo May need a helper function to start all at same time
+                    if (model.placeBet(Integer.parseInt(enterBetField.getText())) == 0) {
+                        buttonHBox.setVisible(false);
+                        gameBackButton.setDisable(true);
+                        TranslateTransition t1 = startHorse(1, imgVH1);
+                        t1.setOnFinished( e -> {
+                            if(!hRaceFinished) {
+                                hRaceFinished = true;
+                                model.setHorseWin(1);
+                            }
+                            if(++horsesFinished == 4) {
+                                horsePickVBox.setVisible(false);
+                                buttonHBox.getChildren().remove(enterBetField);
+                                buttonHBox.getChildren().remove(placeBetButton);
+                                buttonHBox.getChildren().add(playAgainButton);
+                                buttonHBox.setVisible(true);
+                                gameBackButton.setDisable(false);
+                            }
+                        });
+
+                        TranslateTransition t2 = startHorse(2, imgVH2);
+                        t2.setOnFinished( e -> {
+                            if(!hRaceFinished) {
+                                hRaceFinished = true;
+                                model.setHorseWin(2);
+                            }
+                            if(++horsesFinished == 4) {
+                                horsePickVBox.setVisible(false);
+                                buttonHBox.getChildren().remove(enterBetField);
+                                buttonHBox.getChildren().remove(placeBetButton);
+                                buttonHBox.getChildren().add(playAgainButton);
+                                buttonHBox.setVisible(true);
+                                gameBackButton.setDisable(false);
+                            }
+                        });
+
+                        TranslateTransition t3 = startHorse(3, imgVH3);
+                        t3.setOnFinished( e -> {
+                            if(!hRaceFinished) {
+                                hRaceFinished = true;
+                                model.setHorseWin(3);
+                            }
+                            if(++horsesFinished == 4) {
+                                horsePickVBox.setVisible(false);
+                                buttonHBox.getChildren().remove(enterBetField);
+                                buttonHBox.getChildren().remove(placeBetButton);
+                                buttonHBox.getChildren().add(playAgainButton);
+                                buttonHBox.setVisible(true);
+                                gameBackButton.setDisable(false);
+                            }
+                        });
+
+                        TranslateTransition t4 = startHorse(4, imgVH4);
+                        t4.setOnFinished( e -> {
+                            if(!hRaceFinished) {
+                                hRaceFinished = true;
+                                model.setHorseWin(4);
+                            }
+                            if(++horsesFinished == 4) {
+                                horsePickVBox.setVisible(false);
+                                buttonHBox.getChildren().remove(enterBetField);
+                                buttonHBox.getChildren().remove(placeBetButton);
+                                buttonHBox.getChildren().add(playAgainButton);
+                                buttonHBox.setVisible(true);
+                                gameBackButton.setDisable(false);
+                            }
+                        });
+                    }
                 } catch (NumberFormatException nfe) {
                     model.updateModel("Please Enter a Number");
                 }
             }
-        });
-
-        Button gameBackButton = new Button("Back");
-        gameBackButton.setMinSize(125, 50);
-        gameBackButton.setFont(basicFont);
-        gameBackButton.setAlignment(Pos.CENTER);
-        gameBackButton.setTextAlignment(TextAlignment.CENTER);
-        gameBackButton.setOnAction(e ->{
-            model.resetHorseRace();
-            model.setScene(Scenes.HOME);
-            horsebetScene = createHorseRace();
-            hRaceFinished = false;
-            horseAlertLabel.setText("");
         });
 
         VBox leftVBox = new VBox(imgVH1, imgVH2, imgVH3, imgVH4);
@@ -889,25 +997,21 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         bPane.setLeft(leftHBox);
         bPane.setCenter(rightHBox);
         bPane.setBottom(bottomVBox);
-        bPane.setPadding(new Insets(20, 35, 20, 35));
+        bPane.setPadding(new Insets(15, 35, 15, 5));
         return new Scene(bPane, 1200, 800);
     }
 
 
-    public void startHorse(int horseNum, ImageView horseImg) {
+    public TranslateTransition startHorse(int horseNum, ImageView horseImg) {
         TranslateTransition translate = new TranslateTransition();
         translate.setNode(horseImg);
-        translate.setByX(1058);
-
+        translate.setByX(1058); // Magic number found through trial and error.
+                                    // How far horses need to move to cross finish line while staying on screen=
         double speed = model.getHorseRace().getHorse(horseNum).getSpeed();
 
         translate.setDuration(Duration.millis(6000/speed));
-        translate.setOnFinished( event -> {
-            if(!hRaceFinished) {
-                hRaceFinished = true;
-                model.setHorseWin(horseNum);
-        }});
         translate.play();
+        return translate;
     }
 
     /**
