@@ -857,8 +857,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             horsePickVBox.setVisible(true);
             buttonHBox.getChildren().addAll(enterBetField, placeBetButton);
             model.resetHorseRace();
-            model.setScene(Scenes.HOME);
-            horsebetScene = createHorseRace(); // todo: figure a way to reset it without doing this
+            horsebetScene = createHorseRace();
             model.setScene(Scenes.HORSEBETTING);
             model.getHorseRace().resetHorses();
             enterBetField.setText("");
