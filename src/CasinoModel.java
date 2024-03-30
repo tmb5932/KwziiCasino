@@ -208,6 +208,9 @@ public class CasinoModel {
                 (bjGetHandTotal('D') > 21)) {
             winBet(2);
             alertObservers("YOU WON!!!");
+        } else if (bjGetHandTotal('P') == bjGetHandTotal('D')) {
+            winBet(1);
+            alertObservers("Push...");
         } else {
             alertObservers("You lost :(");
         }
