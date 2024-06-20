@@ -1,3 +1,5 @@
+import javafx.scene.paint.Paint;
+
 import java.util.List;
 import java.util.*;
 
@@ -14,6 +16,7 @@ public class CasinoModel {
     private final List<Observer<CasinoModel, String>> observers = new LinkedList<>();
     private int currentBet = 0;
     private final Coin coin = new Coin();
+    private final RubixCube cube = new RubixCube();
     private HorseRace horseRace = new HorseRace();
     private ArrayList<PlayingCards> fullCardDeck = new ArrayList<>();
     private ArrayList<PlayingCards> currentDeck = new ArrayList<>();
@@ -281,6 +284,63 @@ public class CasinoModel {
         currentDeck = new ArrayList<>(fullCardDeck);
         playerHand = new ArrayList<>();
         dealerHand = new ArrayList<>();
+    }
+
+    /**
+     * Method to rotate Rubix Cube vertically
+     * @param col the column to be rotated
+     * @param topTurn true if the column is being rotated up, false if rotated down
+     */
+    public void rotateRubixVert(int col, boolean topTurn) {
+        cube.makeVertRotation(col, topTurn);
+        alertObservers(null);
+    }
+
+    /**
+     * Method to rotate Rubix Cube horizontally
+     * @param row the row to be rotated
+     * @param rightTurn true if the column is being rotated right, false if rotated left
+     */
+    public void rotateRubixHorz(int row, boolean rightTurn) {
+        cube.makeHorzRotation(row, rightTurn);
+        alertObservers(null);
+    }
+
+    /**
+     * Method to mix up the Rubix Cube
+     */
+    public void mixRubixCube() {
+        cube.randomizeCube();
+        alertObservers(null);
+    }
+
+    /**
+     * Method to retrieve a squares color for Rubix Cube's face
+     * @param row the row of the square
+     * @param col the column of the square
+     * @return the javafx paint color
+     */
+    public Paint getRubixFace(RubixCube.RFace face, int row, int col) {
+        switch (cube.getColor(face, row, col)) {
+            case RED -> { return Paint.valueOf("red"); }
+            case BLUE -> { return Paint.valueOf("blue"); }
+            case GREEN -> { return Paint.valueOf("green"); }
+            case ORANGE -> { return Paint.valueOf("orange"); }
+            case WHITE -> { return Paint.valueOf("pink"); }
+            case YELLOW -> { return Paint.valueOf("yellow"); }
+            default -> {
+                System.out.println("ERROR: MODEL.GETRUBIXFACE() FAILED at (" + row + ", " + col + ")");
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Method to reset the Rubix Cube to starting position
+     */
+    public void resetRubixCube() {
+        cube.generateCube();
+        alertObservers(null);
     }
 
     /**

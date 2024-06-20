@@ -9,7 +9,7 @@ public enum Scenes {
     SIGNUP,
     BLACKJACK,
     ROULETTE,
-    POKER,
+    RUBIX,
     SLOTS,
     COINFLIP,
     HORSEBETTING

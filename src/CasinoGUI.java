@@ -3,11 +3,16 @@ import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.geometry.*;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
@@ -37,8 +42,11 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     private final Label blackjackAlertLabel = new Label("");
     private final Label coinCreditLabel = new Label("Credits: " + 0);
     private final Label coinAlertLabel = new Label("");
+    private final Label rubixAlertLabel = new Label("");
     private final Label horseAlertLabel = new Label("");
     private final Label horseCreditLabel = new Label("Credits: " + 0);
+    private GridPane frontRubixGrid;
+    Rectangle[][] rubixFaceColors;
     private boolean hRaceFinished;
     private int numPlayerCards = 0;
     private int numDealerCards = 0;
@@ -51,7 +59,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     private Scene homeScene;
     private Scene blackjackScene;
     private Scene rouletteScene;
-    private Scene pokerScene;
+    private Scene rubixScene;
     private Scene slotsScene;
     private Scene coinflipScene;
     private Scene horsebetScene;
@@ -81,21 +89,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         blackjackScene = blackjack();
         coinflipScene = createCoinScene();
         horsebetScene = createHorseRace();
-        /*
-        try {
-            Parent roulette = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
-            rouletteScene = new Scene(roulette);
-            Parent poker = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
-            pokerScene = new Scene(poker);
-            Parent slots = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
-            slotsScene = new Scene(slots);
-            Parent horseRace = FXMLLoader.load(getClass().getResource("BlackJack.fxml"));
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-         */
-
+        rubixScene = createRubixScene();
         mainStage.setTitle("Casino GUI");
         update(model, "Please Sign Up or Login");
         mainStage.setScene(startupScene);
@@ -229,10 +223,11 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         rouletteButton.setFont(basicFont);
         rouletteButton.setAlignment(Pos.CENTER);
 
-        Button pokerButton = new Button("Poker");
-        pokerButton.setMinSize(150, 100);
-        pokerButton.setFont(basicFont);
-        pokerButton.setAlignment(Pos.CENTER);
+        Button rubixButton = new Button("Rubix Cube");
+        rubixButton.setMinSize(150, 100);
+        rubixButton.setFont(basicFont);
+        rubixButton.setAlignment(Pos.CENTER);
+        rubixButton.setOnAction(event -> model.setScene(Scenes.RUBIX));
 
         Button slotsButton = new Button("Slots");
         slotsButton.setMinSize(150, 100);
@@ -264,8 +259,8 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         homeGameGrid.getChildren().add(blackjackButton);
         GridPane.setConstraints(rouletteButton, 1, 1);
         homeGameGrid.getChildren().add(rouletteButton);
-        GridPane.setConstraints(pokerButton, 2, 1);
-        homeGameGrid.getChildren().add(pokerButton);
+        GridPane.setConstraints(rubixButton, 2, 1);
+        homeGameGrid.getChildren().add(rubixButton);
         GridPane.setConstraints(slotsButton, 0, 2);
         homeGameGrid.getChildren().add(slotsButton);
         GridPane.setConstraints(coinFlipButton, 1, 2);
@@ -634,7 +629,6 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     /**
      * Method to create coin flip game scene
      */
-
     public Scene createCoinScene() {
         coinAlertLabel.setFont(basicFont);
         coinAlertLabel.setAlignment(Pos.CENTER);
@@ -1024,6 +1018,221 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     }
 
     /**
+     * Method to create rubix cube game scene
+     */
+    public Scene createRubixScene() {
+        frontRubixGrid = new GridPane();
+        frontRubixGrid.setPadding(new Insets(10, 10, 10, 10));
+        frontRubixGrid.setVgap(5);
+        frontRubixGrid.setHgap(5);
+        frontRubixGrid.setAlignment(Pos.CENTER);
+
+        rubixFaceColors = new Rectangle[3][3];
+
+        setRubixFace();
+
+        Button rubixRandomizeButton = new Button("Randomize");
+        rubixRandomizeButton.setMinSize(125, 60);
+        rubixRandomizeButton.setFont(basicFont);
+        rubixRandomizeButton.setAlignment(Pos.CENTER);
+        rubixRandomizeButton.setTextAlignment(TextAlignment.CENTER);
+
+        Button rubixResetButton = new Button("Reset");
+        rubixResetButton.setMinSize(125, 60);
+        rubixResetButton.setFont(basicFont);
+        rubixResetButton.setAlignment(Pos.CENTER);
+        rubixResetButton.setTextAlignment(TextAlignment.CENTER);
+
+        Button rubixBackButton = new Button("Back");
+        rubixBackButton.setMinSize(125, 60);
+        rubixBackButton.setFont(basicFont);
+        rubixBackButton.setAlignment(Pos.CENTER);
+        rubixBackButton.setTextAlignment(TextAlignment.CENTER);
+
+
+        HBox horzBox = new HBox(rubixRandomizeButton, rubixResetButton, rubixBackButton);
+        horzBox.setAlignment(Pos.CENTER);
+        horzBox.setSpacing(30);
+
+        rubixRandomizeButton.setOnAction(event -> {
+            model.mixRubixCube();
+            updateRubixFace();
+        });
+
+        rubixResetButton.setOnAction(event -> {
+            model.resetRubixCube();
+            updateRubixFace();
+        });
+
+        rubixBackButton.setOnAction(event ->{
+            rubixAlertLabel.setText("");
+            model.setScene(Scenes.HOME);
+        });
+
+        VBox vertBox = new VBox(frontRubixGrid, horzBox);
+        vertBox.setAlignment(Pos.CENTER);
+        vertBox.setSpacing(30);
+        vertBox.setPadding(new Insets(15, 35, 15, 35));
+
+        return new Scene(vertBox, 900, 650);
+    }
+
+    public void setRubixFace() {
+        Button topLeftRotateButton = new Button("^");
+        topLeftRotateButton.setMinSize(60, 60);
+        topLeftRotateButton.setFont(basicFont);
+        topLeftRotateButton.setAlignment(Pos.CENTER);
+        topLeftRotateButton.setTextAlignment(TextAlignment.CENTER);
+        topLeftRotateButton.setOnAction(event -> {
+            model.rotateRubixVert(0, true);
+            updateRubixFace();
+        });
+
+        Button topMidRotateButton = new Button("^");
+        topMidRotateButton.setMinSize(60, 60);
+        topMidRotateButton.setFont(basicFont);
+        topMidRotateButton.setAlignment(Pos.CENTER);
+        topMidRotateButton.setTextAlignment(TextAlignment.CENTER);
+        topMidRotateButton.setOnAction(event -> {
+            model.rotateRubixVert(1, true);
+            updateRubixFace();
+        });
+
+
+        Button topRightRotateButton = new Button("^");
+        topRightRotateButton.setMinSize(60, 60);
+        topRightRotateButton.setFont(basicFont);
+        topRightRotateButton.setAlignment(Pos.CENTER);
+        topRightRotateButton.setTextAlignment(TextAlignment.CENTER);
+        topRightRotateButton.setOnAction(event -> {
+            model.rotateRubixVert(2, true);
+            updateRubixFace();
+        });
+
+        Button leftTopRotateButton = new Button("<");
+        leftTopRotateButton.setMinSize(60, 60);
+        leftTopRotateButton.setFont(basicFont);
+        leftTopRotateButton.setAlignment(Pos.CENTER);
+        leftTopRotateButton.setTextAlignment(TextAlignment.CENTER);
+        leftTopRotateButton.setOnAction(event -> {
+            model.rotateRubixHorz(0, false);
+            updateRubixFace();
+        });
+
+        Button leftMidRotateButton = new Button("<");
+        leftMidRotateButton.setMinSize(60, 60);
+        leftMidRotateButton.setFont(basicFont);
+        leftMidRotateButton.setAlignment(Pos.CENTER);
+        leftMidRotateButton.setTextAlignment(TextAlignment.CENTER);
+        leftMidRotateButton.setOnAction(event -> {
+            model.rotateRubixHorz(1, false);
+            updateRubixFace();
+        });
+
+        Button leftBotRotateButton = new Button("<");
+        leftBotRotateButton.setMinSize(60, 60);
+        leftBotRotateButton.setFont(basicFont);
+        leftBotRotateButton.setAlignment(Pos.CENTER);
+        leftBotRotateButton.setTextAlignment(TextAlignment.CENTER);
+        leftBotRotateButton.setOnAction(event -> {
+            model.rotateRubixHorz(2, false);
+            updateRubixFace();
+        });
+
+        Button rightTopRotateButton = new Button(">");
+        rightTopRotateButton.setMinSize(60, 60);
+        rightTopRotateButton.setFont(basicFont);
+        rightTopRotateButton.setAlignment(Pos.CENTER);
+        rightTopRotateButton.setTextAlignment(TextAlignment.CENTER);
+        rightTopRotateButton.setOnAction(event -> {
+            model.rotateRubixHorz(0, true);
+            updateRubixFace();
+        });
+
+        Button rightMidRotateButton = new Button(">");
+        rightMidRotateButton.setMinSize(60, 60);
+        rightMidRotateButton.setFont(basicFont);
+        rightMidRotateButton.setAlignment(Pos.CENTER);
+        rightMidRotateButton.setTextAlignment(TextAlignment.CENTER);
+        rightMidRotateButton.setOnAction(event -> {
+            model.rotateRubixHorz(1, true);
+            updateRubixFace();
+        });
+
+        Button rightBotRotateButton = new Button(">");
+        rightBotRotateButton.setMinSize(60, 60);
+        rightBotRotateButton.setFont(basicFont);
+        rightBotRotateButton.setAlignment(Pos.CENTER);
+        rightBotRotateButton.setTextAlignment(TextAlignment.CENTER);
+        rightBotRotateButton.setOnAction(event -> {
+            model.rotateRubixHorz(2, true);
+            updateRubixFace();
+        });
+
+        Button botLeftRotateButton = new Button("V");
+        botLeftRotateButton.setMinSize(60, 60);
+        botLeftRotateButton.setFont(basicFont);
+        botLeftRotateButton.setAlignment(Pos.CENTER);
+        botLeftRotateButton.setTextAlignment(TextAlignment.CENTER);
+        botLeftRotateButton.setOnAction(event -> {
+            model.rotateRubixVert(0, false);
+            updateRubixFace();
+        });
+
+        Button botMidRotateButton = new Button("V");
+        botMidRotateButton.setMinSize(60, 60);
+        botMidRotateButton.setFont(basicFont);
+        botMidRotateButton.setAlignment(Pos.CENTER);
+        botMidRotateButton.setTextAlignment(TextAlignment.CENTER);
+        botMidRotateButton.setOnAction(event -> {
+            model.rotateRubixVert(1, false);
+            updateRubixFace();
+        });
+
+        Button botRightRotateButton = new Button("V");
+        botRightRotateButton.setMinSize(60, 60);
+        botRightRotateButton.setFont(basicFont);
+        botRightRotateButton.setAlignment(Pos.CENTER);
+        botRightRotateButton.setTextAlignment(TextAlignment.CENTER);
+        botRightRotateButton.setOnAction(event -> {
+            model.rotateRubixVert(2, false);
+            updateRubixFace();
+        });
+
+        frontRubixGrid.add(topLeftRotateButton, 1, 0);
+        frontRubixGrid.add(topMidRotateButton, 2, 0);
+        frontRubixGrid.add(topRightRotateButton, 3, 0);
+
+        frontRubixGrid.add(leftTopRotateButton, 0, 1);
+        frontRubixGrid.add(leftMidRotateButton, 0, 2);
+        frontRubixGrid.add(leftBotRotateButton, 0, 3);
+
+        frontRubixGrid.add(rightTopRotateButton, 4, 1);
+        frontRubixGrid.add(rightMidRotateButton, 4, 2);
+        frontRubixGrid.add(rightBotRotateButton, 4, 3);
+
+        frontRubixGrid.add(botLeftRotateButton, 1, 4);
+        frontRubixGrid.add(botMidRotateButton, 2, 4);
+        frontRubixGrid.add(botRightRotateButton, 3, 4);
+
+        for (int i = 1; i < 4; i++) {
+            for (int j = 1; j < 4; j++) {
+                rubixFaceColors[i-1][j-1] = new Rectangle(100, 100);
+                frontRubixGrid.add(rubixFaceColors[i-1][j-1], j, i);
+            }
+        }
+        updateRubixFace();
+    }
+
+    public void updateRubixFace() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                rubixFaceColors[i][j].setFill(model.getRubixFace(RubixCube.RFace.FRONT, i, j));
+            }
+        }
+    }
+
+    /**
      * Centers the application on the users screen
      */
     void centerScreen() {
@@ -1058,7 +1267,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
 
             case ROULETTE -> mainStage.setScene(rouletteScene);
 
-            case POKER -> mainStage.setScene(pokerScene);
+            case RUBIX -> mainStage.setScene(rubixScene);
 
             case SLOTS -> mainStage.setScene(slotsScene);
 
@@ -1083,6 +1292,8 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                 case COINFLIP -> coinAlertLabel.setText(text);
 
                 case HORSEBETTING -> horseAlertLabel.setText(text);
+
+                case RUBIX -> rubixAlertLabel.setText(text);
             }
         }
         // Set the credits to their proper value
