@@ -1031,7 +1031,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     }
 
     /**
-     * Method to create rubix cube game scene
+     * Method to create Rubix cube game scene
      */
     public Scene createRubixScene() {
         frontRubixGrid = new GridPane();
@@ -1130,6 +1130,9 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         return new Scene(vertBox, 905, 700);
     }
 
+    /**
+     * Helper method to set up all the buttons and cubes for the Rubix game
+     */
     public void setRubixFace() {
         Button topLeftRotateButton = new Button("^");
         topLeftRotateButton.setMinSize(60, 60);
@@ -1337,6 +1340,9 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         updateRubixFace();
     }
 
+    /**
+     * Method to update what the faces of the Rubix cube shows when a turn is made
+     */
     public void updateRubixFace() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {

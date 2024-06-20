@@ -1,6 +1,11 @@
 import java.util.Arrays;
 import java.util.Random;
 
+/**
+ * Class for my RubixCube game.
+ * Definitely not stealing an irl toy for this one
+ * @author Travis Brown
+ */
 public class RubixCube {
     public enum Color {
         RED,
@@ -239,6 +244,10 @@ public class RubixCube {
         }
     }
 
+    /**
+     * Method to rotate the front face of the cube
+     * @param clockwise true if being rotated clockwise, and false if being done counterclockwise
+     */
     public void rotateFront(boolean clockwise) {
         if (!clockwise) {
             // Transposing and swapping rows 3 and 1, is the same as rotating 90 degrees
@@ -292,6 +301,10 @@ public class RubixCube {
         }
     }
 
+    /**
+     * Method to rotate the whole cube in the users 'hand'
+     * @param right true if the cube is being turned to the right, false if turned to the left
+     */
     public void rotateCube(boolean right) {
         for (int i = 0; i < 3; i++)
             makeHorzRotation(i, right);

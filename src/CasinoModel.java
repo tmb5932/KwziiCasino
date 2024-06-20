@@ -315,6 +315,10 @@ public class CasinoModel {
         alertObservers(null);
     }
 
+    /**
+     * Method to rotate the whole cube
+     * @param right true if rotating cube right, false if rotating left
+     */
     public void rotateCube(boolean right) {
         cube.rotateCube(right);
         alertObservers(null);
