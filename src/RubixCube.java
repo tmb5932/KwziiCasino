@@ -7,8 +7,8 @@ public class RubixCube {
         BLUE,
         GREEN,
         ORANGE,
-        WHITE,
-        YELLOW
+        PINK,
+        PURPLE
     }
 
     public enum RFace {
@@ -37,8 +37,8 @@ public class RubixCube {
                 cube[1][i][j] = Color.BLUE;
                 cube[2][i][j] = Color.ORANGE;
                 cube[3][i][j] = Color.GREEN;
-                cube[4][i][j] = Color.WHITE;
-                cube[5][i][j] = Color.YELLOW;
+                cube[4][i][j] = Color.PINK;
+                cube[5][i][j] = Color.PURPLE;
             }
         }
     }
@@ -49,7 +49,7 @@ public class RubixCube {
     public void randomizeCube() {
         Random rand = new Random();
         rand.setSeed(System.currentTimeMillis());
-        for (int moves = rand.nextInt(25, 40); moves > 0; moves--) {
+        for (int moves = rand.nextInt(2, 4); moves > 0; moves--) {
             int rotate = rand.nextInt(0, 12);
             if (rotate < 3) {
                 makeVertRotation(rotate, true);
@@ -120,6 +120,48 @@ public class RubixCube {
                 cube[RFace.BOTTOM.ordinal()][i][col] = temp[i];
             }
         }
+
+        if (col == 0 && topRotate) {
+            Color[][] transpose = new Color[3][3];
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    transpose[i][j] = cube[3][j][i];
+            Color[] x = transpose[0];
+            transpose[0] = transpose[2];
+            transpose[2] = x;
+            cube[3] = transpose;
+        } else if (col == 0) {
+            for (int l = 0; l < 3; l++) {
+                Color[][] transpose = new Color[3][3];
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                        transpose[i][j] = cube[3][j][i];
+                Color[] x = transpose[0];
+                transpose[0] = transpose[2];
+                transpose[2] = x;
+                cube[3] = transpose;
+            }
+        } else if (col == 2 && !topRotate) {
+            Color[][] transpose = new Color[3][3];
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    transpose[i][j] = cube[1][j][i];
+            Color[] x = transpose[0];
+            transpose[0] = transpose[2];
+            transpose[2] = x;
+            cube[1] = transpose;
+        } else if (col == 2) {
+            for (int l = 0; l < 3; l++) {
+                Color[][] transpose = new Color[3][3];
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                        transpose[i][j] = cube[1][j][i];
+                Color[] x = transpose[0];
+                transpose[0] = transpose[2];
+                transpose[2] = x;
+                cube[1] = transpose;
+            }
+        }
     }
 
     /**
@@ -153,6 +195,106 @@ public class RubixCube {
 
             cube[RFace.LEFT.ordinal()][row] = temp;
         }
+
+        if (row == 0 && rightRotate) {
+            Color[][] transpose = new Color[3][3];
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    transpose[i][j] = cube[4][j][i];
+            Color[] x = transpose[0];
+            transpose[0] = transpose[2];
+            transpose[2] = x;
+            cube[4] = transpose;
+        } else if (row == 0) {
+            for (int l = 0; l < 3; l++) {
+                Color[][] transpose = new Color[3][3];
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                        transpose[i][j] = cube[4][j][i];
+                Color[] x = transpose[0];
+                transpose[0] = transpose[2];
+                transpose[2] = x;
+                cube[4] = transpose;
+            }
+        } else if (row == 2 && !rightRotate) {
+            Color[][] transpose = new Color[3][3];
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    transpose[i][j] = cube[5][j][i];
+            Color[] x = transpose[0];
+            transpose[0] = transpose[2];
+            transpose[2] = x;
+            cube[5] = transpose;
+        } else if (row == 2) {
+            for (int l = 0; l < 3; l++) {
+                Color[][] transpose = new Color[3][3];
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                        transpose[i][j] = cube[5][j][i];
+                Color[] x = transpose[0];
+                transpose[0] = transpose[2];
+                transpose[2] = x;
+                cube[5] = transpose;
+            }
+        }
+    }
+
+    public void rotateFront(boolean clockwise) {
+        if (!clockwise) {
+            // Transposing and swapping rows 3 and 1, is the same as rotating 90 degrees
+            Color[][] transpose = new Color[3][3];
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    transpose[i][j] = cube[0][j][i];
+            Color[] x = transpose[0];
+            transpose[0] = transpose[2];
+            transpose[2] = x;
+            cube[0] = transpose;
+
+            // Rotating the faces that go with rotating the front of the cube
+            Color[] temp = new Color[3];
+            for (int i = 0; i < 3; i++) {
+                temp[2 - i] = cube[1][2 - i][0];
+                cube[1][2 - i][0] = cube[5][0][i];
+                cube[5][0][i] = cube[3][i][2];
+            }
+            for (int i = 0; i < 3; i++) {
+                cube[3][2 - i][2] = cube[4][2][i];
+            }
+            cube[4][2] = temp;
+
+        } else {
+            // Transposing and swapping rows 3 and 1, 3 times, is the same as rotating 270 degrees (-90 degrees)
+            for (int l = 0; l < 3; l++) {
+                Color[][] transpose = new Color[3][3];
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                        transpose[i][j] = cube[0][j][i];
+                Color[] x = transpose[0];
+                transpose[0] = transpose[2];
+                transpose[2] = x;
+                cube[0] = transpose;
+            }
+
+            // Rotating the faces that go with rotating the front of the cube
+            Color[] temp = new Color[3];
+            for (int i = 0; i < 3; i++) {
+                temp[i] = cube[1][i][0];
+                cube[1][i][0] = cube[4][2][i];
+            }
+            for (int i = 0; i < 3; i++) {
+                cube[4][2][2 - i] = cube[3][i][2];
+                cube[3][i][2] = cube[5][0][i];
+            }
+            for (int i = 0; i < 3; i++) {
+                cube[5][0][2 - i] = temp[i];
+            }
+        }
+    }
+
+    public void rotateCube(boolean right) {
+        for (int i = 0; i < 3; i++)
+            makeHorzRotation(i, right);
     }
 
     /**

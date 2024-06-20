@@ -2,16 +2,16 @@ import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
-import javafx.geometry.*;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
@@ -19,7 +19,10 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -45,8 +48,18 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     private final Label rubixAlertLabel = new Label("");
     private final Label horseAlertLabel = new Label("");
     private final Label horseCreditLabel = new Label("Credits: " + 0);
+    private GridPane topRubixGrid;
     private GridPane frontRubixGrid;
-    Rectangle[][] rubixFaceColors;
+    private GridPane leftRubixGrid;
+    private GridPane rightRubixGrid;
+    private GridPane botRubixGrid;
+    private GridPane backRubixGrid;
+    Rectangle[][] rubixFrontFaceColors;
+    Rectangle[][] rubixTopFaceColors;
+    Rectangle[][] rubixLeftFaceColors;
+    Rectangle[][] rubixRightFaceColors;
+    Rectangle[][] rubixBotFaceColors;
+    Rectangle[][] rubixBackFaceColors;
     private boolean hRaceFinished;
     private int numPlayerCards = 0;
     private int numDealerCards = 0;
@@ -1027,7 +1040,42 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         frontRubixGrid.setHgap(5);
         frontRubixGrid.setAlignment(Pos.CENTER);
 
-        rubixFaceColors = new Rectangle[3][3];
+        topRubixGrid = new GridPane();
+        topRubixGrid.setPadding(new Insets(5, 5, 5, 5));
+        topRubixGrid.setVgap(5);
+        topRubixGrid.setHgap(5);
+        topRubixGrid.setAlignment(Pos.CENTER);
+
+        leftRubixGrid = new GridPane();
+        leftRubixGrid.setPadding(new Insets(5, 5, 5, 5));
+        leftRubixGrid.setVgap(5);
+        leftRubixGrid.setHgap(5);
+        leftRubixGrid.setAlignment(Pos.CENTER);
+
+        rightRubixGrid = new GridPane();
+        rightRubixGrid.setPadding(new Insets(5, 5, 5, 5));
+        rightRubixGrid.setVgap(5);
+        rightRubixGrid.setHgap(5);
+        rightRubixGrid.setAlignment(Pos.CENTER);
+
+        botRubixGrid = new GridPane();
+        botRubixGrid.setPadding(new Insets(5, 5, 5, 5));
+        botRubixGrid.setVgap(5);
+        botRubixGrid.setHgap(5);
+        botRubixGrid.setAlignment(Pos.CENTER);
+
+        backRubixGrid = new GridPane();
+        backRubixGrid.setPadding(new Insets(5, 5, 5, 5));
+        backRubixGrid.setVgap(5);
+        backRubixGrid.setHgap(5);
+        backRubixGrid.setAlignment(Pos.CENTER);
+
+        rubixFrontFaceColors = new Rectangle[3][3];
+        rubixTopFaceColors = new Rectangle[3][3];
+        rubixBotFaceColors = new Rectangle[3][3];
+        rubixLeftFaceColors = new Rectangle[3][3];
+        rubixRightFaceColors = new Rectangle[3][3];
+        rubixBackFaceColors = new Rectangle[3][3];
 
         setRubixFace();
 
@@ -1069,12 +1117,17 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             model.setScene(Scenes.HOME);
         });
 
-        VBox vertBox = new VBox(frontRubixGrid, horzBox);
+        HBox viewsHBox = new HBox(leftRubixGrid, frontRubixGrid, rightRubixGrid, backRubixGrid);
+        viewsHBox.setAlignment(Pos.CENTER);
+        VBox viewsVBox = new VBox(topRubixGrid, viewsHBox, botRubixGrid);
+        viewsVBox.setAlignment(Pos.CENTER);
+
+        VBox vertBox = new VBox(viewsVBox, horzBox);
         vertBox.setAlignment(Pos.CENTER);
         vertBox.setSpacing(30);
         vertBox.setPadding(new Insets(15, 35, 15, 35));
 
-        return new Scene(vertBox, 900, 650);
+        return new Scene(vertBox, 905, 700);
     }
 
     public void setRubixFace() {
@@ -1199,9 +1252,51 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             updateRubixFace();
         });
 
+        Button frontClockRotateButton = new Button("⭮");
+        frontClockRotateButton.setMinSize(60, 60);
+        frontClockRotateButton.setFont(basicFont);
+        frontClockRotateButton.setAlignment(Pos.CENTER);
+        frontClockRotateButton.setTextAlignment(TextAlignment.CENTER);
+        frontClockRotateButton.setOnAction(event -> {
+            model.rotateFront(true);
+            updateRubixFace();
+        });
+
+        Button frontCounterRotateButton = new Button("⭯");
+        frontCounterRotateButton.setMinSize(60, 60);
+        frontCounterRotateButton.setFont(basicFont);
+        frontCounterRotateButton.setAlignment(Pos.CENTER);
+        frontCounterRotateButton.setTextAlignment(TextAlignment.CENTER);
+        frontCounterRotateButton.setOnAction(event -> {
+            model.rotateFront(false);
+            updateRubixFace();
+        });
+
+        Button cubeRightRotateButton = new Button("\uD83E\uDC9A");
+        cubeRightRotateButton.setMinSize(60, 60);
+        cubeRightRotateButton.setFont(basicFont);
+        cubeRightRotateButton.setAlignment(Pos.CENTER);
+        cubeRightRotateButton.setTextAlignment(TextAlignment.CENTER);
+        cubeRightRotateButton.setOnAction(event -> {
+            model.rotateCube(true);
+            updateRubixFace();
+        });
+
+        Button cubeLeftRotateButton = new Button("\uD83E\uDC98");
+        cubeLeftRotateButton.setMinSize(60, 60);
+        cubeLeftRotateButton.setFont(basicFont);
+        cubeLeftRotateButton.setAlignment(Pos.CENTER);
+        cubeLeftRotateButton.setTextAlignment(TextAlignment.CENTER);
+        cubeLeftRotateButton.setOnAction(event -> {
+            model.rotateCube(false);
+            updateRubixFace();
+        });
+
+        frontRubixGrid.add(frontClockRotateButton, 0, 0);
         frontRubixGrid.add(topLeftRotateButton, 1, 0);
         frontRubixGrid.add(topMidRotateButton, 2, 0);
         frontRubixGrid.add(topRightRotateButton, 3, 0);
+        frontRubixGrid.add(frontCounterRotateButton, 4, 0);
 
         frontRubixGrid.add(leftTopRotateButton, 0, 1);
         frontRubixGrid.add(leftMidRotateButton, 0, 2);
@@ -1211,14 +1306,32 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         frontRubixGrid.add(rightMidRotateButton, 4, 2);
         frontRubixGrid.add(rightBotRotateButton, 4, 3);
 
+        frontRubixGrid.add(cubeLeftRotateButton, 0, 4);
         frontRubixGrid.add(botLeftRotateButton, 1, 4);
         frontRubixGrid.add(botMidRotateButton, 2, 4);
         frontRubixGrid.add(botRightRotateButton, 3, 4);
+        frontRubixGrid.add(cubeRightRotateButton, 4, 4);
 
         for (int i = 1; i < 4; i++) {
             for (int j = 1; j < 4; j++) {
-                rubixFaceColors[i-1][j-1] = new Rectangle(100, 100);
-                frontRubixGrid.add(rubixFaceColors[i-1][j-1], j, i);
+                rubixFrontFaceColors[i-1][j-1] = new Rectangle(60, 60);
+                frontRubixGrid.add(rubixFrontFaceColors[i-1][j-1], j, i);
+
+                rubixLeftFaceColors[i-1][j-1] = new Rectangle(30, 30);
+                leftRubixGrid.add(rubixLeftFaceColors[i-1][j-1], j-1, i-1);
+
+                rubixRightFaceColors[i-1][j-1] = new Rectangle(30, 30);
+                rightRubixGrid.add(rubixRightFaceColors[i-1][j-1], j-1, i-1);
+
+                rubixTopFaceColors[i-1][j-1] = new Rectangle(30, 30);
+                topRubixGrid.add(rubixTopFaceColors[i-1][j-1], j-1, i-1);
+
+                rubixBotFaceColors[i-1][j-1] = new Rectangle(30, 30);
+                botRubixGrid.add(rubixBotFaceColors[i-1][j-1], j-1, i-1);
+
+                rubixBackFaceColors[i-1][j-1] = new Rectangle(30, 30);
+                backRubixGrid.add(rubixBackFaceColors[i-1][j-1], j-1, i-1);
+
             }
         }
         updateRubixFace();
@@ -1227,7 +1340,23 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     public void updateRubixFace() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                rubixFaceColors[i][j].setFill(model.getRubixFace(RubixCube.RFace.FRONT, i, j));
+                rubixFrontFaceColors[i][j].setFill(model.getRubixFace(RubixCube.RFace.FRONT, i, j));
+                rubixFrontFaceColors[i][j].setStroke(Paint.valueOf("black"));
+
+                rubixTopFaceColors[i][j].setFill(model.getRubixFace(RubixCube.RFace.TOP, i, j));
+                rubixTopFaceColors[i][j].setStroke(Paint.valueOf("black"));
+
+                rubixLeftFaceColors[i][j].setFill(model.getRubixFace(RubixCube.RFace.LEFT, i, j));
+                rubixLeftFaceColors[i][j].setStroke(Paint.valueOf("black"));
+
+                rubixRightFaceColors[i][j].setFill(model.getRubixFace(RubixCube.RFace.RIGHT, i, j));
+                rubixRightFaceColors[i][j].setStroke(Paint.valueOf("black"));
+
+                rubixBotFaceColors[i][j].setFill(model.getRubixFace(RubixCube.RFace.BOTTOM, i, j));
+                rubixBotFaceColors[i][j].setStroke(Paint.valueOf("black"));
+
+                rubixBackFaceColors[i][j].setFill(model.getRubixFace(RubixCube.RFace.BACK, i, j));
+                rubixBackFaceColors[i][j].setStroke(Paint.valueOf("black"));
             }
         }
     }

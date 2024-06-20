@@ -307,6 +307,20 @@ public class CasinoModel {
     }
 
     /**
+     * Method to rotate front of Rubix Cube
+     * @param clockwise true if rotating clockwise, false if counterclockwise
+     */
+    public void rotateFront(boolean clockwise) {
+        cube.rotateFront(clockwise);
+        alertObservers(null);
+    }
+
+    public void rotateCube(boolean right) {
+        cube.rotateCube(right);
+        alertObservers(null);
+    }
+
+    /**
      * Method to mix up the Rubix Cube
      */
     public void mixRubixCube() {
@@ -323,11 +337,11 @@ public class CasinoModel {
     public Paint getRubixFace(RubixCube.RFace face, int row, int col) {
         switch (cube.getColor(face, row, col)) {
             case RED -> { return Paint.valueOf("red"); }
-            case BLUE -> { return Paint.valueOf("blue"); }
+            case BLUE -> { return Paint.valueOf("teal"); }
             case GREEN -> { return Paint.valueOf("green"); }
             case ORANGE -> { return Paint.valueOf("orange"); }
-            case WHITE -> { return Paint.valueOf("pink"); }
-            case YELLOW -> { return Paint.valueOf("yellow"); }
+            case PINK -> { return Paint.valueOf("pink"); }
+            case PURPLE -> { return Paint.valueOf("purple"); }
             default -> {
                 System.out.println("ERROR: MODEL.GETRUBIXFACE() FAILED at (" + row + ", " + col + ")");
                 return null;
