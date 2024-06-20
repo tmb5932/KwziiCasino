@@ -340,12 +340,12 @@ public class CasinoModel {
      */
     public Paint getRubixFace(RubixCube.RFace face, int row, int col) {
         switch (cube.getColor(face, row, col)) {
-            case RED -> { return Paint.valueOf("red"); }
+            case RED -> { return Paint.valueOf("white"); } // red
             case BLUE -> { return Paint.valueOf("teal"); }
             case GREEN -> { return Paint.valueOf("green"); }
-            case ORANGE -> { return Paint.valueOf("orange"); }
-            case PINK -> { return Paint.valueOf("pink"); }
-            case PURPLE -> { return Paint.valueOf("purple"); }
+            case ORANGE -> { return Paint.valueOf("yellow"); } // orange
+            case PINK -> { return Paint.valueOf("orange"); } // pink
+            case PURPLE -> { return Paint.valueOf("red"); } // purple
             default -> {
                 System.out.println("ERROR: MODEL.GETRUBIXFACE() FAILED at (" + row + ", " + col + ")");
                 return null;

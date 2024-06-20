@@ -54,17 +54,18 @@ public class RubixCube {
     public void randomizeCube() {
         Random rand = new Random();
         rand.setSeed(System.currentTimeMillis());
-        for (int moves = rand.nextInt(2, 4); moves > 0; moves--) {
-            int rotate = rand.nextInt(0, 12);
+        for (int moves = rand.nextInt(25, 40); moves > 0; moves--) {
+            int rotate = rand.nextInt(0, 14);
             if (rotate < 3) {
                 makeVertRotation(rotate, true);
             } else if (rotate < 6) {
                 makeHorzRotation(rotate - 3, true);
             } else if (rotate < 9) {
                 makeHorzRotation(rotate - 6, false);
-            } else {
+            } else if (rotate < 12){
                 makeVertRotation(rotate - 9, false);
-            }
+            } else
+                rotateFront(rotate == 12);
         }
     }
 
@@ -101,27 +102,19 @@ public class RubixCube {
         if (topRotate) {
             for (int i = 0; i < 3; i++) {
                 cube[RFace.FRONT.ordinal()][i][col] = cube[RFace.BOTTOM.ordinal()][i][col];
+                cube[RFace.BOTTOM.ordinal()][i][col] = cube[RFace.BACK.ordinal()][2 - i][2 - col];
             }
             for (int i = 0; i < 3; i++) {
-                cube[RFace.BOTTOM.ordinal()][i][col] = cube[RFace.BACK.ordinal()][i][col];
-            }
-            for (int i = 0; i < 3; i++) {
-                cube[RFace.BACK.ordinal()][i][col] = cube[RFace.TOP.ordinal()][i][col];
-            }
-            for (int i = 0; i < 3; i++) {
+                cube[RFace.BACK.ordinal()][2 - i][2 - col] = cube[RFace.TOP.ordinal()][i][col];
                 cube[RFace.TOP.ordinal()][i][col] = temp[i];
             }
         } else {
             for (int i = 0; i < 3; i++) {
                 cube[RFace.FRONT.ordinal()][i][col] = cube[RFace.TOP.ordinal()][i][col];
+                cube[RFace.TOP.ordinal()][i][col] = cube[RFace.BACK.ordinal()][2 - i][2 - col];
             }
             for (int i = 0; i < 3; i++) {
-                cube[RFace.TOP.ordinal()][i][col] = cube[RFace.BACK.ordinal()][i][col];
-            }
-            for (int i = 0; i < 3; i++) {
-                cube[RFace.BACK.ordinal()][i][col] = cube[RFace.BOTTOM.ordinal()][i][col];
-            }
-            for (int i = 0; i < 3; i++) {
+                cube[RFace.BACK.ordinal()][2 - i][2 - col] = cube[RFace.BOTTOM.ordinal()][i][col];
                 cube[RFace.BOTTOM.ordinal()][i][col] = temp[i];
             }
         }
