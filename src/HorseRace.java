@@ -13,14 +13,13 @@ public class HorseRace {
      * Constructor for horse race object
      */
     public HorseRace() {
+        this.horse1 = new Horse(1, "Blue");
 
-        this.horse1 = new Horse(1, "blue");
-
-        this.horse2 = new Horse(2, "RED");
+        this.horse2 = new Horse(2, "Red");
 
         this.horse3 = new Horse(3, "Green");
 
-        this.horse4 = new Horse(4, "black");
+        this.horse4 = new Horse(4, "Black");
     }
 
     /**

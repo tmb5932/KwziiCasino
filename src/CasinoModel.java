@@ -362,6 +362,28 @@ public class CasinoModel {
     }
 
     /**
+     * Method to determine chips gained from slots
+     * @param results the slot icons that were rolled
+     */
+    public void slotsEnd(SlotIcons[] results) {
+        if (results[0] == results[1] && results[1] == results[2]) {
+            switch (results[0]) {
+                case CHERRY -> winBet(1);
+                case BELL -> winBet(1.2);
+                case HORSESHOE -> winBet(1.5);
+                case FOURLEAF -> winBet(2);
+                case COIN -> winBet(2.25);
+                case CROWN -> winBet(3.5);
+                case DIAMOND -> winBet(5);
+                case BAR -> winBet(10);
+                case SEVEN -> winBet(150);
+            }
+        } else
+            alertObservers("Better Luck Next Time...");
+        currentBet = 0;
+    }
+
+    /**
      * Allows GUI users to log into a previously created account. Checks with accountMap to see if it is a valid login
      * @param usr username in a String
      * @param pass password in a String

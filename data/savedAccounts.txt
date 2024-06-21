@@ -1,1 +1,1 @@
-admin, admin, 25000
+admin, admin, 50000

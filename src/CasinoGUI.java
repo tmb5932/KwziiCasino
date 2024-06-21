@@ -25,6 +25,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
 
 /**
  * The main GUI program for the Casino Project
@@ -48,6 +50,8 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
     private final Label rubixAlertLabel = new Label("");
     private final Label horseAlertLabel = new Label("");
     private final Label horseCreditLabel = new Label("Credits: " + 0);
+    private final Label slotsAlertLabel = new Label("");
+    private final Label slotsCreditLabel = new Label("Credits: " + 0);
     private GridPane topRubixGrid;
     private GridPane frontRubixGrid;
     private GridPane leftRubixGrid;
@@ -103,6 +107,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         coinflipScene = createCoinScene();
         horsebetScene = createHorseRace();
         rubixScene = createRubixScene();
+        slotsScene = createSlotsScene();
         mainStage.setTitle("Casino GUI");
         update(model, "Please Sign Up or Login");
         mainStage.setScene(startupScene);
@@ -246,6 +251,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         slotsButton.setMinSize(150, 100);
         slotsButton.setFont(basicFont);
         slotsButton.setAlignment(Pos.CENTER);
+        slotsButton.setOnAction(event -> model.setScene(Scenes.SLOTS));
 
         Button coinFlipButton = new Button("Coin Flips");
         coinFlipButton.setMinSize(150, 100);
@@ -880,11 +886,11 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         gameBackButton.setTextAlignment(TextAlignment.CENTER);
         gameBackButton.setOnAction(event ->{
             model.resetHorseRace();
-            model.setScene(Scenes.HOME);
             horsebetScene = createHorseRace();
             hRaceFinished = false;
             horseAlertLabel.setText("");
             horsesFinished = 0;
+            model.setScene(Scenes.HOME);
         });
 
         placeBetButton.setOnAction(event -> {         // todo Would be funny if when the race starts a horn goes off
@@ -1367,10 +1373,152 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         }
     }
 
+    public Scene createSlotsScene() {
+        Label currentBetLabel = new Label("1000");
+        currentBetLabel.setFont(basicFont);
+
+        slotsAlertLabel.setFont(basicFont);
+        slotsAlertLabel.setAlignment(Pos.BOTTOM_CENTER);
+
+        slotsCreditLabel.setFont(basicFont);
+
+        Button slotsBackButton = new Button("Back");
+        slotsBackButton.setMinSize(125, 60);
+        slotsBackButton.setFont(basicFont);
+        slotsBackButton.setAlignment(Pos.CENTER);
+        slotsBackButton.setTextAlignment(TextAlignment.CENTER);
+        slotsBackButton.setOnAction(event -> {
+            slotsAlertLabel.setText("");
+            model.setScene(Scenes.HOME);
+        });
+
+        Button slotsSpinButton = new Button("Spin");
+        slotsSpinButton.setMinSize(125, 60);
+        slotsSpinButton.setFont(basicFont);
+        slotsSpinButton.setAlignment(Pos.CENTER);
+        slotsSpinButton.setTextAlignment(TextAlignment.CENTER);
+        slotsSpinButton.setOnAction(event -> {
+            if (model.placeBet(Integer.parseInt(currentBetLabel.getText())) == 0) {
+                //todo do transformations to make the spinning...
+                SlotIcons[] results = new SlotIcons[3];
+                Random rand = new Random();
+                for (int i = 0; i < 3; i++) {
+                    results[i] = slotChances(rand.nextInt(0, 1000));
+                }
+                System.out.println(Arrays.toString(results)); //todo replace this with displaying the winning stuff
+                model.slotsEnd(results);
+            }
+        });
+
+        Button increaseButton = new Button("\uD83E\uDC81");
+        increaseButton.setMinSize(85, 30);
+        increaseButton.setFont(basicFont);
+        increaseButton.setAlignment(Pos.TOP_RIGHT);
+        increaseButton.setTextAlignment(TextAlignment.CENTER);
+
+        Button decreaseButton = new Button("\uD83E\uDC83");
+        decreaseButton.setMinSize(85, 30);
+        decreaseButton.setFont(basicFont);
+        decreaseButton.setAlignment(Pos.TOP_RIGHT);
+        decreaseButton.setTextAlignment(TextAlignment.CENTER);
+
+        increaseButton.setOnAction(event -> {
+            switch(currentBetLabel.getText()) {
+                case "10" -> {
+                    currentBetLabel.setText("100");
+                    decreaseButton.setDisable(false);
+                }
+                case "100" -> currentBetLabel.setText("500");
+                case "500" -> currentBetLabel.setText("1000");
+                case "1000" -> currentBetLabel.setText("2000");
+                case "2000" -> currentBetLabel.setText("5000");
+                case "5000" -> currentBetLabel.setText("10000");
+                case "10000" -> {
+                    currentBetLabel.setText("100000");
+                    increaseButton.setDisable(true);
+                }
+            }
+            model.updateModel("Bet Changed");
+        });
+
+        decreaseButton.setOnAction(event -> {
+            switch(currentBetLabel.getText()) {
+                case "100" -> {
+                    currentBetLabel.setText("10");
+                    decreaseButton.setDisable(true);
+                }
+                case "500" -> currentBetLabel.setText("100");
+                case "1000" -> currentBetLabel.setText("500");
+                case "2000" -> currentBetLabel.setText("1000");
+                case "5000" -> currentBetLabel.setText("2000");
+                case "10000" -> currentBetLabel.setText("5000");
+                case "100000" -> {
+                    currentBetLabel.setText("10000");
+                    increaseButton.setDisable(false);
+                }
+            }
+            model.updateModel("Bet Changed");
+        });
+
+        VBox alterBetVBox = new VBox(increaseButton, decreaseButton);
+        HBox slotButtonsHBox = new HBox(currentBetLabel, alterBetVBox, slotsSpinButton);
+        slotButtonsHBox.setAlignment(Pos.CENTER);
+        slotButtonsHBox.setSpacing(10);
+
+        Rectangle firstSlot = new Rectangle(100, 350);
+        firstSlot.setStroke(Paint.valueOf("black"));
+        firstSlot.setFill(Paint.valueOf("grey"));
+
+        Rectangle secondSlot = new Rectangle(100, 350);
+        secondSlot.setStroke(Paint.valueOf("black"));
+        secondSlot.setFill(Paint.valueOf("grey"));
+
+        Rectangle thirdSlot = new Rectangle(100, 350);
+        thirdSlot.setStroke(Paint.valueOf("black"));
+        thirdSlot.setFill(Paint.valueOf("grey"));
+
+        HBox slotScreen = new HBox(firstSlot, secondSlot, thirdSlot);
+        slotScreen.setAlignment(Pos.CENTER);
+        slotScreen.setSpacing(10);
+        slotScreen.setPadding(new Insets(25));
+
+        HBox topHBox = new HBox(slotsCreditLabel, slotsBackButton);
+        topHBox.setAlignment(Pos.TOP_RIGHT);
+        topHBox.setSpacing(45);
+        topHBox.setPadding(new Insets(25));
+
+        VBox slotsVBox = new VBox(topHBox, slotScreen, slotsAlertLabel, slotButtonsHBox);
+        slotsVBox.setAlignment(Pos.CENTER);
+        slotsVBox.setSpacing(10);
+
+        return new Scene(slotsVBox, 900,  750);
+    }
+
+    public SlotIcons slotChances(int random) {
+        if (random < 30)
+            return SlotIcons.SEVEN;
+        else if (random < 80)
+            return SlotIcons.CROWN;
+        else if (random < 150)
+            return SlotIcons.DIAMOND;
+        else if (random < 220)
+            return SlotIcons.COIN;
+        else if (random < 340)
+            return SlotIcons.BAR;
+        else if (random < 500)
+            return SlotIcons.FOURLEAF;
+        else if (random < 660)
+            return SlotIcons.HORSESHOE;
+        else if (random < 800)
+            return SlotIcons.BELL;
+        else
+            return SlotIcons.CHERRY;
+    }
+
     /**
      * Centers the application on the users screen
      */
-    void centerScreen() {
+    public void centerScreen() {
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
         mainStage.setX((screenBounds.getWidth() - mainStage.getWidth()) / 2);
         mainStage.setY((screenBounds.getHeight() - mainStage.getHeight()) / 2);
@@ -1381,7 +1529,6 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
      * @param casinoModel the object that wishes to inform this object
      *                about something that has happened.
      * @param text optional data the server.model can send to the observer
-     *
      */
     @Override
     public void update(CasinoModel casinoModel, String text) {
@@ -1429,6 +1576,8 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                 case HORSEBETTING -> horseAlertLabel.setText(text);
 
                 case RUBIX -> rubixAlertLabel.setText(text);
+
+                case SLOTS -> slotsAlertLabel.setText(text);
             }
         }
         // Set the credits to their proper value
@@ -1437,6 +1586,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             homeCreditLabel.setText("Credits: " + model.getActivePlayer().getChips());
             coinCreditLabel.setText("Credits: " + model.getActivePlayer().getChips());
             horseCreditLabel.setText("Credits: " + model.getActivePlayer().getChips());
+            slotsCreditLabel.setText("Credits: " + model.getActivePlayer().getChips());
         }
     }
 }
