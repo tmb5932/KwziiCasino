@@ -101,6 +101,21 @@ public class CasinoModel {
     }
 
     /**
+     * Method to flip the coin and find out what side it lands on. Randomly generated 50-50 chance
+     * @return the CoinSide enum that the coin "lands" on (Heads or Tails)
+     */
+    public Coin.CoinSide flipCoin() {
+        Random rand = new Random();
+        if (rand.nextInt(0, 2) == 0) {
+            alertObservers("Heads has landed!");
+            return Coin.CoinSide.HEADS;
+        } else {
+            alertObservers("Tails has landed");
+            return Coin.CoinSide.TAILS;
+        }
+    }
+
+    /**
      * Method to return a random card from the current deck for player
      * @return the file name of the card that was drawn from the deck
      */
