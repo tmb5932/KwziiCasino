@@ -677,11 +677,16 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         coinBackButton.setAlignment(Pos.CENTER);
         coinBackButton.setTextAlignment(TextAlignment.CENTER);
 
+        Button playAgainButton = new Button("Play Again?");
+        playAgainButton.setMinSize(125, 60);
+        playAgainButton.setFont(basicFont);
+        playAgainButton.setAlignment(Pos.CENTER);
+        playAgainButton.setTextAlignment(TextAlignment.CENTER);
+
         coinCreditLabel.setFont(basicFont);
         HBox topHBox = new HBox(coinCreditLabel, coinBackButton);
         topHBox.setAlignment(Pos.TOP_RIGHT);
         topHBox.setSpacing(45);
-
 
         ImageView coinHeadImV = new ImageView(new Image("file:" + RESOURCES_DIR + model.getCoin().getCurrentHead()));
         coinHeadImV.setFitHeight(250);
@@ -699,20 +704,36 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
         removableVBox.setAlignment(Pos.CENTER);
         removableVBox.setPadding(new Insets(15));
         removableVBox.setSpacing(10);
+
+        VBox mainVBox = new VBox(topHBox, coinHeadImV, coinAlertLabel, removableVBox);
+
         betHeadsButton.setOnAction(event -> {
             if (!betField.getText().isEmpty()) {
                 try {
                     if (model.placeBet(Integer.parseInt(betField.getText())) != 1) {
                         model.getCoin().setCurrentBet(Coin.CoinSide.HEADS);
                         removableVBox.getChildren().clear();
+                        // todo: SHAKE COIN HERE
+                        if (model.flipCoin() == Coin.CoinSide.TAILS) {
+                            if (mainVBox.getChildren().contains(coinHeadImV)) {
+                                mainVBox.getChildren().set(1, coinTailImV);
+                            }
+                            model.updateModel("You lost :(");
+                        } else {
+                            if (mainVBox.getChildren().contains(coinTailImV)) {
+                                mainVBox.getChildren().set(1, coinHeadImV);
+                            }
+                            model.winBet(2);
+                        }
                     }
+                    removableVBox.getChildren().add(playAgainButton);
                 } catch (NumberFormatException nfe) {
                     model.updateModel("Please enter a number");
                 }
             } else {
                 model.updateModel("You have not entered a bet");
             }
-        });  // TODO create animation for coin flip (coin just going crazy) and also set up win conditions and shiz
+        });  // TODO create animation for coin flip (coin just going crazy)
 
         betTailsButton.setOnAction(event -> {
             if (!betField.getText().isEmpty()) {
@@ -720,13 +741,31 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
                     if (model.placeBet(Integer.parseInt(betField.getText())) != 1) {
                         model.getCoin().setCurrentBet(Coin.CoinSide.TAILS);
                         removableVBox.getChildren().clear();
+                        // todo: SHAKE COIN HERE
+                        if (model.flipCoin() == Coin.CoinSide.TAILS) {
+                            if (mainVBox.getChildren().contains(coinHeadImV)) {
+                                mainVBox.getChildren().set(1, coinTailImV);
+                            }
+                            model.winBet(2);
+                        } else {
+                            if (mainVBox.getChildren().contains(coinTailImV)) {
+                                mainVBox.getChildren().set(1, coinHeadImV);
+                            }
+                            model.updateModel("You lost :(");
+                        }
                     }
+                    removableVBox.getChildren().add(playAgainButton);
                 } catch (NumberFormatException nfe) {
                     model.updateModel("Please enter a number");
                 }
             } else {
                 model.updateModel("You have not entered a bet");
             }
+        });
+
+        playAgainButton.setOnAction(event -> {
+            removableVBox.getChildren().clear();
+            removableVBox.getChildren().addAll(betField, buttonsHBox);
         });
 
         coinBackButton.setOnAction(event ->{
@@ -737,7 +776,6 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             model.setScene(Scenes.HOME);
         });
 
-        VBox mainVBox = new VBox(topHBox, coinHeadImV, coinAlertLabel, removableVBox);
         mainVBox.setSpacing(10);
         mainVBox.setPadding(new Insets(15));
         mainVBox.setAlignment(Pos.CENTER);
