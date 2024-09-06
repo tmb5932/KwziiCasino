@@ -1261,7 +1261,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             updateRubixFace();
         });
 
-        Button frontClockRotateButton = new Button("⭮");
+        Button frontClockRotateButton = new Button("↻");
         frontClockRotateButton.setMinSize(60, 60);
         frontClockRotateButton.setFont(basicFont);
         frontClockRotateButton.setAlignment(Pos.CENTER);
@@ -1271,7 +1271,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             updateRubixFace();
         });
 
-        Button frontCounterRotateButton = new Button("⭯");
+        Button frontCounterRotateButton = new Button("↺");
         frontCounterRotateButton.setMinSize(60, 60);
         frontCounterRotateButton.setFont(basicFont);
         frontCounterRotateButton.setAlignment(Pos.CENTER);
@@ -1281,7 +1281,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             updateRubixFace();
         });
 
-        Button cubeRightRotateButton = new Button("\uD83E\uDC9A");
+        Button cubeRightRotateButton = new Button("→");
         cubeRightRotateButton.setMinSize(60, 60);
         cubeRightRotateButton.setFont(basicFont);
         cubeRightRotateButton.setAlignment(Pos.CENTER);
@@ -1291,7 +1291,7 @@ public class CasinoGUI extends Application implements Observer<CasinoModel, Stri
             updateRubixFace();
         });
 
-        Button cubeLeftRotateButton = new Button("\uD83E\uDC98");
+        Button cubeLeftRotateButton = new Button("←");
         cubeLeftRotateButton.setMinSize(60, 60);
         cubeLeftRotateButton.setFont(basicFont);
         cubeLeftRotateButton.setAlignment(Pos.CENTER);
